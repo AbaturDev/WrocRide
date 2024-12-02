@@ -1,4 +1,4 @@
-﻿using WrocRide.Models;
+﻿using WrocRide.Models.Enums;
 
 namespace WrocRide.Entities
 {

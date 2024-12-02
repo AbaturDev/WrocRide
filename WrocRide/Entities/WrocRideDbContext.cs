@@ -8,16 +8,16 @@ namespace WrocRide.Entities
         {
         }
 
-        DbSet<User> Users { get; set; }
-        DbSet<Car> Cars { get; set; }
-        DbSet<Document> Documents { get; set; }
-        DbSet<Driver> Drivers { get; set; }
-        DbSet<Rating> Ratings { get; set; }
-        DbSet<Report> Reports { get; set; }
-        DbSet<Ride> Rides { get; set; }
-        DbSet<Role> Roles { get; set; }
-        DbSet<Client> Clients { get; set; }
-        DbSet<Admin> Admins { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Car> Cars { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<Driver> Drivers { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Ride> Rides { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Admin> Admins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
