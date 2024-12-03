@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
+using WrocRide.Models;
 using WrocRide.Services;
 
 namespace WrocRide.Controllers
@@ -16,7 +17,7 @@ namespace WrocRide.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Driver>> Get()
+        public ActionResult<IEnumerable<DriverDto>> Get()
         {
             var result = _driverService.GetAllAvailableDrivers();
 
@@ -24,7 +25,7 @@ namespace WrocRide.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Driver> GetById([FromRoute] int id)
+        public ActionResult<DriverDto> GetById([FromRoute] int id)
         {
             var result = _driverService.GetById(id);
 

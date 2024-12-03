@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
+using WrocRide.Seeders;
 using WrocRide.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +13,9 @@ builder.Services.AddDbContext<WrocRideDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services
-    .AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -31,5 +34,7 @@ app.UseSwaggerUI(options =>
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Seed();
 
 app.Run();
