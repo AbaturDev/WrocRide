@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
+using WrocRide.Exceptions;
 using WrocRide.Models;
 using WrocRide.Models.Enums;
 
@@ -55,7 +56,7 @@ namespace WrocRide.Services
 
             if(driver == null)
             {
-                throw new Exception();      // TODO:::handle the exception in new middleware
+                throw new NotFoundException("Driver not found");
             }
 
             var result = new DriverDto()
