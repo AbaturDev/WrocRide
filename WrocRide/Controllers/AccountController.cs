@@ -22,6 +22,13 @@ namespace WrocRide.Controllers
             return Ok();
         }
 
+        [HttpPost("register-driver")]
+        public ActionResult RegisterDriver([FromBody] RegisterDriverDto dto)
+        {
+            _accountService.RegisterDriver(dto);
+            return Ok();
+        }
+
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginUserDto dto)
         {

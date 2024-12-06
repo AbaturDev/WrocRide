@@ -32,6 +32,15 @@ namespace WrocRide.Entities
                 .WithMany()
                 .HasForeignKey(r => r.ClientId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Driver>()
+                .HasOne(r => r.Document)
+                .WithOne()
+                .HasForeignKey<Driver>(r => r.DocumentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
+ 

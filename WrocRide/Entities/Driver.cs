@@ -12,6 +12,7 @@ namespace WrocRide.Entities
         public virtual User User { get; set; }
         public int CarId { get; set; }
         public virtual Car Car { get; set; }
-
+        public int DocumentId { get; set; }
+        public virtual Document Document { get; set; }
     }
 }

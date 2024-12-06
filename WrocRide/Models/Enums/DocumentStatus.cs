@@ -2,6 +2,8 @@
 {
     public enum DocumentStatus
     {
-        //todo
+        UnderVerification,
+        Accepted,
+        Rejected
     }
 }

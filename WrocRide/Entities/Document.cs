@@ -9,7 +9,7 @@ namespace WrocRide.Entities
         public string FileLocation { get; set; }
         public DateTime RequestDate { get; set; }
         public DateTime? ExaminationDate { get; set; }
-        public int AdminId { get; set; }
+        public int? AdminId { get; set; }
         public virtual Admin Admin { get; set; }
     }
 }

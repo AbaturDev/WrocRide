@@ -20,6 +20,7 @@ builder.Services.AddDbContext<WrocRideDbContext>(options =>
 );
 
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+builder.Services.AddScoped<IValidator<RegisterDriverDto>, RegisterDriverDtoValidator>();
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
