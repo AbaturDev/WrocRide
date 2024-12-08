@@ -11,3 +11,4 @@ namespace WrocRide.Models
         public DriverStatus DriverStatus { get; set; }
     }
 }
+

@@ -68,7 +68,7 @@ namespace WrocRide.Services
                 }
                 else
                 {
-                    throw new InvalidRoleException("Invalid role assigned");
+                    throw new BadRequestException("Invalid role assigned");
                 }
 
                 _dbContext.SaveChanges();

@@ -14,7 +14,6 @@ namespace WrocRide.Controllers
             _accountService = accountService;
         }
 
-
         [HttpPost("register")]
         public ActionResult Register([FromBody] RegisterUserDto dto)
         {

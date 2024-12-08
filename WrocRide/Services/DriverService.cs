@@ -10,6 +10,8 @@ namespace WrocRide.Services
     {
         IEnumerable<DriverDto> GetAllAvailableDrivers();
         DriverDto GetById(int id);
+        void UpdatePricing(int id, UpdateDriverPricingDto dto);
+        void UpdateStatus(int id, UpdateDriverStatusDto dto);
     }
 
 
@@ -26,25 +28,20 @@ namespace WrocRide.Services
             var drivers = _dbContext.Drivers
                 .Include(d => d.Car)
                 .Include(d => d.User)
-                .Where(d => d.DriverStatus == DriverStatus.Available)
+                //.Where(d => d.DriverStatus == DriverStatus.Available)
+                .Select(d => new DriverDto()
+                {
+                    Name = d.User.Name,
+                    Surename = d.User.Surename,
+                    Rating = d.Rating,
+                    Pricing = d.Pricing,
+                    DriverStatus = d.DriverStatus
+                })
                 .ToList();
 
-            var result = new List<DriverDto>();
-            foreach (var driver in drivers)
-            {
-                var dto = new DriverDto()
-                {
-                    Name = driver.User.Name,
-                    Surename = driver.User.Surename,
-                    Rating = driver.Rating,
-                    Pricing = driver.Pricing,
-                    DriverStatus = driver.DriverStatus
-                };
-                result.Append(dto);
-            }
             // TODO:::Add pagination
             
-            return result;
+            return drivers;
         }
 
         public DriverDto GetById(int id)
@@ -69,6 +66,42 @@ namespace WrocRide.Services
             };
 
             return result;
+        }
+
+        public void UpdatePricing(int id, UpdateDriverPricingDto dto)
+        {
+            if(dto.Pricing <= 0)
+            {
+                throw new BadRequestException("Price value must be greater than 0");
+            }
+
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
+            
+            if(driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            driver.Pricing = dto.Pricing;
+            _dbContext.SaveChanges();
+        }
+
+        public void UpdateStatus(int id, UpdateDriverStatusDto dto)
+        {
+            if (!Enum.TryParse<DriverStatus>(dto.DriverStatus.ToString(), out _))
+            {
+                throw new BadRequestException("Invalid driver status value");
+            }
+
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
+            
+            if(driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            driver.DriverStatus = dto.DriverStatus;
+            _dbContext.SaveChanges();
         }
     }
 }

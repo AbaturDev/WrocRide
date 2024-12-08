@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
 using WrocRide.Models;
+using WrocRide.Models.Enums;
 using WrocRide.Services;
 
 namespace WrocRide.Controllers
@@ -30,6 +31,22 @@ namespace WrocRide.Controllers
             var result = _driverService.GetById(id);
 
             return Ok(result);
+        }
+
+        [HttpPut("{id}/pricing")]
+        public ActionResult UpdatePricing([FromRoute] int id, [FromBody] UpdateDriverPricingDto dto)
+        {
+            _driverService.UpdatePricing(id, dto);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}/status")]
+        public ActionResult UpdateStatus([FromRoute] int id, [FromBody] UpdateDriverStatusDto dto)
+        {
+            _driverService.UpdateStatus(id, dto);
+
+            return NoContent();
         }
 
     }
