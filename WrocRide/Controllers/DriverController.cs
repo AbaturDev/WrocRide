@@ -18,9 +18,9 @@ namespace WrocRide.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DriverDto>> Get()
+        public ActionResult<IEnumerable<DriverDto>> Get([FromQuery] DriverQuery query)
         {
-            var result = _driverService.GetAllAvailableDrivers();
+            var result = _driverService.GetAll(query);
 
             return Ok(result);
         }

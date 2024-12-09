@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
+using WrocRide.Helpers;
 using WrocRide.Models;
 using WrocRide.Models.Enums;
 
@@ -8,7 +9,7 @@ namespace WrocRide.Services
 {
     public interface IDriverService
     {
-        IEnumerable<DriverDto> GetAllAvailableDrivers();
+        PagedList<DriverDto> GetAll(DriverQuery query);
         DriverDto GetById(int id);
         void UpdatePricing(int id, UpdateDriverPricingDto dto);
         void UpdateStatus(int id, UpdateDriverStatusDto dto);
@@ -23,12 +24,18 @@ namespace WrocRide.Services
             _dbContext = dbContext;
         }
 
-        public IEnumerable<DriverDto> GetAllAvailableDrivers()
+        public PagedList<DriverDto> GetAll(DriverQuery query)
         {
-            var drivers = _dbContext.Drivers
+            IQueryable<Driver> baseQuery = _dbContext.Drivers
                 .Include(d => d.Car)
-                .Include(d => d.User)
-                //.Where(d => d.DriverStatus == DriverStatus.Available)
+                .Include(d => d.User);
+
+            if(query.DriverStatus != null)
+            {
+                baseQuery = baseQuery.Where(d => d.DriverStatus == query.DriverStatus);
+            }
+
+            var drivers = baseQuery
                 .Select(d => new DriverDto()
                 {
                     Name = d.User.Name,
@@ -37,11 +44,13 @@ namespace WrocRide.Services
                     Pricing = d.Pricing,
                     DriverStatus = d.DriverStatus
                 })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
                 .ToList();
 
-            // TODO:::Add pagination
+            var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, drivers.Count());
             
-            return drivers;
+            return result;
         }
 
         public DriverDto GetById(int id)
