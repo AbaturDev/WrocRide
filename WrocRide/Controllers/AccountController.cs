@@ -31,8 +31,9 @@ namespace WrocRide.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginUserDto dto)
         {
-            _accountService.Login(dto);
-            return Ok();
+            string token = _accountService.Login(dto);
+
+            return Ok(token);
         }
     }
 }

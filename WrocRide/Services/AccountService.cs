@@ -1,6 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
+using WrocRide.Helpers;
 using WrocRide.Models;
 using WrocRide.Models.Enums;
 
@@ -10,18 +17,20 @@ namespace WrocRide.Services
     {
         void Register(RegisterUserDto dto);
         void RegisterDriver(RegisterDriverDto dto);
-        void Login(LoginUserDto dto);
+        string Login(LoginUserDto dto);
     }
 
     public class AccountService : IAccountService
     {
         private readonly WrocRideDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly JwtAuthentication _jwtAuthentication;
 
-        public AccountService(WrocRideDbContext dbContext, IPasswordHasher<User> passwordHasher)
+        public AccountService(WrocRideDbContext dbContext, IPasswordHasher<User> passwordHasher, JwtAuthentication jwtAuthentication)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
+            _jwtAuthentication = jwtAuthentication;
         }
 
         public void Register(RegisterUserDto dto)
@@ -143,9 +152,43 @@ namespace WrocRide.Services
             }
         }
 
-        public void Login(LoginUserDto dto)
+        public string Login(LoginUserDto dto)
         {
-            //todo login + authentication
+            var user = _dbContext.Users
+                .Include(u => u.Role)
+                .FirstOrDefault(u => u.Email == dto.Email);
+
+            if(user == null)
+            {
+                throw new BadRequestException("Invalid email or password");
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+
+            if(result == PasswordVerificationResult.Failed)
+            {
+                throw new BadRequestException("Invalid email or password");
+            }
+
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, $"{user.Name} {user.Surename}"),
+                new Claim(ClaimTypes.Role, $"{user.Role.Name}")
+            };
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtAuthentication.Key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var tokenOptions = new JwtSecurityToken(issuer: _jwtAuthentication.Issuer,
+                audience: _jwtAuthentication.Issuer,
+                claims,
+                signingCredentials: credentials
+                );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            return token;
         }
     }
 }
