@@ -27,9 +27,15 @@ builder.Services.AddDbContext<WrocRideDbContext>(options =>
 
 builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
 builder.Services.AddScoped<IValidator<RegisterDriverDto>, RegisterDriverDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateCarDto>, UpdateCarDtoValidator>();
 builder.Services.AddScoped<IValidator<DriverQuery>, DriverQueryValidator>();
+builder.Services.AddScoped<IValidator<UpdateDriverPricingDto>, UpdateDriverPricingDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateDriverStatusDto>, UpdateDriverStatusDtoValidator>();
+
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICarService, CarService>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
