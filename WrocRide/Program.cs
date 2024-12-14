@@ -35,22 +35,27 @@ builder.Services.AddScoped<IValidator<UpdateDriverStatusDto>, UpdateDriverStatus
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IRideService, RideService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton(jwtOptions);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
         ValidIssuer = jwtOptions.Issuer,
         ValidAudience = jwtOptions.Issuer,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))

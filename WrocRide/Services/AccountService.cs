@@ -179,10 +179,12 @@ namespace WrocRide.Services
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtAuthentication.Key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddMinutes(_jwtAuthentication.Expires);
 
             var tokenOptions = new JwtSecurityToken(issuer: _jwtAuthentication.Issuer,
                 audience: _jwtAuthentication.Issuer,
                 claims,
+                expires: expires,
                 signingCredentials: credentials
                 );
 
