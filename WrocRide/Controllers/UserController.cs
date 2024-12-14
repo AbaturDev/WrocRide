@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WrocRide.Entities;
 using WrocRide.Models;
 using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
     [ApiController]
-    [Route("api/meandry_losu")]
+    [Route("api/me")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -23,6 +24,14 @@ namespace WrocRide.Controllers
             if (result == null) { return NotFound(); }
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateProfile([FromBody] UpdateUserDto dto)
+        {
+            _userService.UpdateUser(dto);
+
+            return NoContent();
         }
     }
 }
