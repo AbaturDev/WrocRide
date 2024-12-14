@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
 using WrocRide.Models;
