@@ -28,7 +28,7 @@ namespace WrocRide.Services
 
             if (userId == null)
             {
-                throw new NotFoundException("User not found"); // Change it to NotLoggedIn error
+                throw new NotFoundException("User not found"); 
             }
 
             var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
@@ -51,7 +51,7 @@ namespace WrocRide.Services
 
             if (userId == null)
             {
-                throw new NotFoundException("User not found"); // Change it to NotLoggedIn error
+                throw new NotFoundException("User not found"); 
             }
 
             var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
