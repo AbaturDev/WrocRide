@@ -21,11 +21,11 @@ namespace WrocRide.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Client")]
-        public ActionResult CreateRide([FromBody]CreateRideDto dto)
+        public ActionResult CreateRide([FromBody] CreateRideDto dto)
         {
             int id = _rideService.CreateRide(dto);
 
-            return Created($"api/ride/{id}",null);
+            return Created($"api/ride/{id}", null);
         }
 
         [HttpGet]
@@ -35,7 +35,7 @@ namespace WrocRide.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetRideById([FromRoute]int id)
+        public ActionResult GetRideById([FromRoute] int id)
         {
             return Ok();
         }
@@ -46,7 +46,7 @@ namespace WrocRide.Controllers
             return NoContent();
         }
 
-        [HttpPut]
+        [HttpPut("decision")]
         public ActionResult DriverDecision()
         {
             //this endpoint will use updaterdie method in service and inheritance after updateridedto
