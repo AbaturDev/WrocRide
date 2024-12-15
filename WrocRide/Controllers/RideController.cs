@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
+using WrocRide.Helpers;
 using WrocRide.Models;
 using WrocRide.Services;
 
@@ -28,13 +29,14 @@ namespace WrocRide.Controllers
             return Created($"api/ride/{id}", null);
         }
 
-        //[HttpGet]
-        //public ActionResult<List<RideDto>> GetAllRides()
-        //{
-        //    return Ok();
-        //}
+        [HttpGet]
+        public ActionResult<PagedList<RideDto>> GetAllRides([FromQuery] RideQuery query)
+        {
+            var result = _rideService.GetAll(query);
 
-        [AllowAnonymous]
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public ActionResult<RideDeatailsDto> GetRideById([FromRoute] int id)
         {
@@ -54,7 +56,8 @@ namespace WrocRide.Controllers
         [HttpPut("{id}/driver-decision")]
         public ActionResult DriverDecision([FromRoute] int id, [FromBody] RideDriverDecisionDto dto)
         {
-            //this endpoint will use updaterdie method in service and inheritance after updateridedto
+            _rideService.DriverDecision(id, dto);
+
             return NoContent();
         }
     }

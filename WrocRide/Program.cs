@@ -33,6 +33,7 @@ builder.Services.AddScoped<IValidator<UpdateDriverPricingDto>, UpdateDriverPrici
 builder.Services.AddScoped<IValidator<UpdateDriverStatusDto>, UpdateDriverStatusDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateRideStatusDto>, UpdateRideStatusDtoValidator>();
 builder.Services.AddScoped<IValidator<RideDriverDecisionDto>, RideDriverDecisionDtoValidator>();
+builder.Services.AddScoped<IValidator<RideQuery>, RideQueryValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
 
 builder.Services.AddScoped<IDriverService, DriverService>();
