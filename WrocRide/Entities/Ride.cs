@@ -5,7 +5,7 @@ namespace WrocRide.Entities
     public class Ride
     {
         public int Id { get; set; }
-        public float Coast { get; set; }
+        public float? Coast { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string PickUpLocation { get; set; }

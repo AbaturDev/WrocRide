@@ -79,11 +79,6 @@ namespace WrocRide.Services
 
         public void UpdatePricing(int id, UpdateDriverPricingDto dto)
         {
-            if(dto.Pricing <= 0)
-            {
-                throw new BadRequestException("Price value must be greater than 0");
-            }
-
             var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
             
             if(driver == null)
@@ -97,11 +92,6 @@ namespace WrocRide.Services
 
         public void UpdateStatus(int id, UpdateDriverStatusDto dto)
         {
-            if (!Enum.TryParse<DriverStatus>(dto.DriverStatus.ToString(), out _))
-            {
-                throw new BadRequestException("Invalid driver status value");
-            }
-
             var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
             
             if(driver == null)
