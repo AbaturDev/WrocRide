@@ -15,7 +15,6 @@ namespace WrocRide.Services
         void UpdateStatus(int id, UpdateDriverStatusDto dto);
     }
 
-
     public class DriverService : IDriverService
     {
         private readonly WrocRideDbContext _dbContext;
