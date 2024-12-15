@@ -9,7 +9,7 @@ namespace WrocRide.Controllers
 {
     [Route("api/ride")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class RideController : ControllerBase
     {
         private readonly IRideService _rideService;
@@ -28,26 +28,31 @@ namespace WrocRide.Controllers
             return Created($"api/ride/{id}", null);
         }
 
-        [HttpGet]
-        public ActionResult GetAllRides()
-        {
-            return Ok();
-        }
+        //[HttpGet]
+        //public ActionResult<List<RideDto>> GetAllRides()
+        //{
+        //    return Ok();
+        //}
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
-        public ActionResult GetRideById([FromRoute] int id)
+        public ActionResult<RideDeatailsDto> GetRideById([FromRoute] int id)
         {
-            return Ok();
+            var result = _rideService.GetById(id);
+
+            return Ok(result);
         }
 
-        [HttpPut]
-        public ActionResult UpdateRideStatus()
+        [HttpPut("{id}/ride-status")]
+        public ActionResult UpdateRideStatus([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
         {
+            _rideService.UpdateRideStatus(id, dto);
+
             return NoContent();
         }
 
-        [HttpPut("decision")]
-        public ActionResult DriverDecision()
+        [HttpPut("{id}/driver-decision")]
+        public ActionResult DriverDecision([FromRoute] int id, [FromBody] RideDriverDecisionDto dto)
         {
             //this endpoint will use updaterdie method in service and inheritance after updateridedto
             return NoContent();
