@@ -28,7 +28,7 @@ namespace WrocRide.Controllers
         {
             _carService.UpdateCar(driverId, carId, dto);
 
-            return NoContent();
+            return Ok();
         }
     }
 }
