@@ -38,7 +38,7 @@ namespace WrocRide.Controllers
         {
             _driverService.UpdatePricing(id, dto);
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpPut("{id}/status")]
@@ -46,7 +46,7 @@ namespace WrocRide.Controllers
         {
             _driverService.UpdateStatus(id, dto);
 
-            return NoContent();
+            return Ok();
         }
 
     }

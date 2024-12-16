@@ -10,7 +10,7 @@ namespace WrocRide.Controllers
 {
     [Route("api/ride")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class RideController : ControllerBase
     {
         private readonly IRideService _rideService;
@@ -50,7 +50,7 @@ namespace WrocRide.Controllers
         {
             _rideService.UpdateRideStatus(id, dto);
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpPut("{id}/driver-decision")]
@@ -58,7 +58,23 @@ namespace WrocRide.Controllers
         {
             _rideService.DriverDecision(id, dto);
 
-            return NoContent();
+            return Ok();
+        }
+
+        [HttpPut("{id}/cancel-ride")]
+        public ActionResult CancelRide([FromRoute] int id)
+        {
+            _rideService.CancelRide(id);
+
+            return Ok();
+        }
+
+        [HttpPut("{id}/end-ride")]
+        public ActionResult EndRide([FromRoute] int id)
+        {
+            _rideService.EndRide(id);
+
+            return Ok();
         }
     }
 }

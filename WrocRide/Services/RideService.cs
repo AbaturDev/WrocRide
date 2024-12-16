@@ -15,8 +15,9 @@ namespace WrocRide.Services
         PagedList<RideDto> GetAll(RideQuery query);
         RideDeatailsDto GetById(int id);
         void UpdateRideStatus(int id, UpdateRideStatusDto dto);
-        public void DriverDecision(int id, RideDriverDecisionDto dto);
-
+        void DriverDecision(int id, RideDriverDecisionDto dto);
+        void CancelRide(int id);
+        void EndRide(int id);
     }
     public class RideService : IRideService
     {
@@ -39,11 +40,6 @@ namespace WrocRide.Services
 
             var userId = _userContext.GetUserId;
 
-            if (userId == null)
-            {
-                throw new NotLoggedException("User is not logged in");
-            }
-
             var client = _dbContext.Clients
                 .Include(c => c.User)
                 .FirstOrDefault(c => c.UserId == userId);
@@ -59,7 +55,8 @@ namespace WrocRide.Services
                 RideStatus = RideStatus.WaitingForDriver,
                 DriverId = dto.DriverId,
                 PickUpLocation = dto.PickUpLocation,
-                Destination = dto.Destination
+                Destination = dto.Destination,
+                StartDate = DateTime.Now
             };
 
             _dbContext.Rides.Add(ride);
@@ -71,11 +68,6 @@ namespace WrocRide.Services
         public PagedList<RideDto> GetAll(RideQuery query)
         {
             var userId = _userContext.GetUserId;
-
-            if (userId == null)
-            {
-                throw new NotLoggedException("User is not logged in");
-            }
 
             var client = _dbContext.Clients
                 .FirstOrDefault(c => c.UserId == userId);
@@ -194,18 +186,16 @@ namespace WrocRide.Services
             using var dbContextTransaction = _dbContext.Database.BeginTransaction();
             try
             {
-                UpdateRideStatus(id, dto);
+                ride.RideStatus = dto.RideStatus;
 
                 if (dto.RideStatus == RideStatus.Accepted)
                 {
                     ride.Driver.DriverStatus = DriverStatus.Occupied;
-                    ride.StartDate = DateTime.Now;
                     ride.Coast = dto.Coast;
                 }
 
                 else if (dto.RideStatus == RideStatus.Canceled)
                 {
-                    ride.StartDate = DateTime.Now;
                     ride.EndDate = DateTime.Now;
                 }
 
@@ -218,5 +208,92 @@ namespace WrocRide.Services
                 throw new Exception();
             }
         }
+
+        public void CancelRide(int id)
+        {
+            var userId = _userContext.GetUserId;
+
+            var client = _dbContext.Clients
+                .Include(c => c.User)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (client == null)
+            {
+                throw new BadRequestException("This user is not a client. Failed request for a ride cancel");
+            }
+
+            var ride = _dbContext.Rides
+                .Include(r => r.Driver)
+                .FirstOrDefault(r => r.Id == id && 
+                    r.ClientId == client.Id && 
+                    (r.RideStatus == RideStatus.WaitingForDriver || r.RideStatus == RideStatus.Accepted));
+                
+            if(ride == null)
+            {
+                throw new NotFoundException("Ride not found");
+            }
+
+            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                ride.EndDate = DateTime.Now;
+                ride.RideStatus = RideStatus.Canceled;
+
+                if (ride.Driver == null)
+                {
+                    throw new NotFoundException("Driver not found");
+                }
+
+                ride.Driver.DriverStatus = DriverStatus.Available;
+
+                _dbContext.SaveChanges();
+                dbContextTransaction.Commit();
+            }
+            catch
+            {
+                dbContextTransaction.Rollback();
+                throw new Exception();
+            }
+        }
+        
+        public void EndRide(int id)
+        {
+            var userId = _userContext.GetUserId;
+
+            var driver = _dbContext.Drivers
+                .FirstOrDefault(d => d.UserId == userId);
+
+            if(driver == null)
+            {
+                throw new BadRequestException("This user is not a driver");
+            }
+
+            var ride = _dbContext.Rides
+                .FirstOrDefault(r => r.DriverId == driver.Id && r.Id == id && r.RideStatus == RideStatus.Ongoing);
+
+            if(ride == null)
+            {
+                throw new NotFoundException("Ride not found");
+            }
+
+            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                ride.EndDate = DateTime.Now;
+                ride.RideStatus = RideStatus.Ended;
+
+                driver.DriverStatus = DriverStatus.Available;
+
+                _dbContext.SaveChanges();
+                dbContextTransaction.Commit();
+            }
+            catch
+            {
+                dbContextTransaction.Rollback();
+                throw new Exception();
+            }
+
+        }
+
     }
 }
