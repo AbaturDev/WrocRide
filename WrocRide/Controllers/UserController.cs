@@ -26,12 +26,12 @@ namespace WrocRide.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpPut]
         public ActionResult UpdateProfile([FromBody] UpdateUserDto dto)
         {
             _userService.UpdateUser(dto);
 
-            return NoContent();
+            return Ok();
         }
     }
 }

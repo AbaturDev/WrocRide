@@ -44,7 +44,8 @@ namespace WrocRide.Services
                     Surename = dto.Surename,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
-                    RoleId = dto.RoleId
+                    RoleId = dto.RoleId,
+                    JoinAt = DateTime.Now
                 };
 
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
@@ -101,7 +102,8 @@ namespace WrocRide.Services
                     Surename = dto.Surename,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
-                    RoleId = dto.RoleId
+                    RoleId = dto.RoleId,
+                    JoinAt = DateTime.Now
                 };
 
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);

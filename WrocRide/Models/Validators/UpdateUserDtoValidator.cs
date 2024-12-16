@@ -8,19 +8,23 @@ namespace WrocRide.Models.Validators
         public UpdateUserDtoValidator(WrocRideDbContext dbContext)
         {
             RuleFor(x => x.Name)
-                   .NotEmpty()
-                   .MaximumLength(25);
+                .NotEmpty()
+                .MaximumLength(25)
+                .When(x => x.Name != null);
 
             RuleFor(x => x.Surename)
                 .NotEmpty()
-                .MaximumLength(25);
+                .MaximumLength(25)
+                .When(x => x.Surename != null);
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty();
+                .NotEmpty()
+                .When(x => x.PhoneNumber != null);
 
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .EmailAddress();
+                .EmailAddress()
+                .When(x => x.Email != null);
 
             RuleFor(x => x.Email)
                 .Custom((value, context) =>
@@ -33,8 +37,11 @@ namespace WrocRide.Models.Validators
                     }
                 });
 
-            RuleFor(x => x.Password).MinimumLength(8);
-            RuleFor(x => x.ConfirmPassword).Equal(e => e.Password);
+            RuleFor(x => x.Password)
+                .MinimumLength(8)
+                .When(x => x.Password != null);
+            RuleFor(x => x.ConfirmPassword)
+                .Equal(e => e.Password);
         }
     }
 }
