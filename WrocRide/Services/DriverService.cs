@@ -13,6 +13,7 @@ namespace WrocRide.Services
         DriverDto GetById(int id);
         void UpdatePricing(int id, UpdateDriverPricingDto dto);
         void UpdateStatus(int id, UpdateDriverStatusDto dto);
+        PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query);
     }
 
     public class DriverService : IDriverService
@@ -100,6 +101,35 @@ namespace WrocRide.Services
 
             driver.DriverStatus = dto.DriverStatus;
             _dbContext.SaveChanges();
+        }
+
+        public PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query)
+        {
+            var driver = _dbContext.Drivers
+                .Include(d => d.Rides)
+                .ThenInclude(d => d.Rating)
+                .FirstOrDefault(d => d.Id == id);
+
+            if(driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            var ratings = driver.Rides
+                .Where(r => r.Rating != null)
+                .Select(r => new RatingDto()
+                {
+                    Grade = r.Rating.Grade,
+                    Comment = r.Rating.Comment,
+                    CreatedAt = r.Rating.CreatedAt
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, ratings.Count);
+         
+            return result;
         }
     }
 }

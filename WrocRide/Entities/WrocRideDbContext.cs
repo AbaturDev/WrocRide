@@ -23,7 +23,7 @@ namespace WrocRide.Entities
         {
             modelBuilder.Entity<Ride>()
                 .HasOne(r => r.Driver)
-                .WithMany()
+                .WithMany(d => d.Rides)
                 .HasForeignKey(r => r.DriverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
