@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WrocRide.Entities;
 
@@ -11,9 +12,11 @@ using WrocRide.Entities;
 namespace WrocRide.Migrations
 {
     [DbContext(typeof(WrocRideDbContext))]
-    partial class WrocRideDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241220103341_UpdateRating")]
+    partial class UpdateRating
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,9 +180,6 @@ namespace WrocRide.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CreatedByClientId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Grade")
                         .HasColumnType("int");
 
@@ -188,8 +188,7 @@ namespace WrocRide.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RideId")
-                        .IsUnique();
+                    b.HasIndex("RideId");
 
                     b.ToTable("Ratings");
                 });
@@ -389,8 +388,8 @@ namespace WrocRide.Migrations
             modelBuilder.Entity("WrocRide.Entities.Rating", b =>
                 {
                     b.HasOne("WrocRide.Entities.Ride", "Ride")
-                        .WithOne("Rating")
-                        .HasForeignKey("WrocRide.Entities.Rating", "RideId")
+                        .WithMany()
+                        .HasForeignKey("RideId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -449,12 +448,6 @@ namespace WrocRide.Migrations
             modelBuilder.Entity("WrocRide.Entities.Car", b =>
                 {
                     b.Navigation("Driver")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WrocRide.Entities.Ride", b =>
-                {
-                    b.Navigation("Rating")
                         .IsRequired();
                 });
 

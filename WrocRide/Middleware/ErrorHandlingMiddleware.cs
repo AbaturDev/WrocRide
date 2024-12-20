@@ -26,6 +26,11 @@ namespace WrocRide.Middleware
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync(notLoggedException.Message);
             }
+            catch(ForbidException forbidException)
+            {
+                context.Response.StatusCode = 403;
+                await context.Response.WriteAsync(forbidException.Message);
+            }
             catch(Exception)
             {
                 context.Response.StatusCode = 500;
