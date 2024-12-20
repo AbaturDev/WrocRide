@@ -96,6 +96,10 @@ namespace WrocRide.Services
         {
             var ride = _dbContext.Rides
                 .Include(r => r.Rating)
+                .Include(r => r.Driver)
+                    .ThenInclude(r => r.User)
+                .Include(r => r.Client)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefault(r => r.Id == rideId && r.RideStatus == RideStatus.Ended);
 
             if (ride == null)
@@ -112,7 +116,11 @@ namespace WrocRide.Services
             {
                 Grade = ride.Rating.Grade,
                 Comment = ride.Rating.Comment,
-                CreatedAt = ride.Rating.CreatedAt
+                CreatedAt = ride.Rating.CreatedAt,
+                ClientName = ride.Client.User.Name,
+                ClientSurename = ride.Client.User.Surename,
+                DriverName = ride.Driver.User.Name,
+                DriverSurename = ride.Driver.User.Surename
             };
 
             return result;

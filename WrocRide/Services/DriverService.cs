@@ -115,13 +115,25 @@ namespace WrocRide.Services
                 throw new NotFoundException("Driver not found");
             }
 
-            var ratings = driver.Rides
+            var rides = _dbContext.Rides
+                .Include(r => r.Rating)
+                .Include(r => r.Driver)
+                    .ThenInclude(r => r.User)
+                .Include(r => r.Client)
+                    .ThenInclude(r => r.User)
+                .Where(r => r.DriverId == driver.Id);
+
+            var ratings = rides
                 .Where(r => r.Rating != null)
                 .Select(r => new RatingDto()
                 {
                     Grade = r.Rating.Grade,
                     Comment = r.Rating.Comment,
-                    CreatedAt = r.Rating.CreatedAt
+                    CreatedAt = r.Rating.CreatedAt,
+                    ClientName = r.Client.User.Name,
+                    ClientSurename = r.Client.User.Surename,
+                    DriverName = r.Driver.User.Name,
+                    DriverSurename = r.Driver.User.Surename
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
