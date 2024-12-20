@@ -14,5 +14,6 @@ namespace WrocRide.Entities
         public virtual Car Car { get; set; }
         public int DocumentId { get; set; }
         public virtual Document Document { get; set; }
+        public virtual List<Ride> Rides { get; set; }
     }
 }

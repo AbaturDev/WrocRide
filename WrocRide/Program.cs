@@ -36,6 +36,7 @@ builder.Services.AddScoped<IValidator<RideDriverDecisionDto>, RideDriverDecision
 builder.Services.AddScoped<IValidator<RideQuery>, RideQueryValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateRatingDto>, CreateRatingDtoValidator>();
+builder.Services.AddScoped<IValidator<DriverRatingsQuery>, DriverRatingsQueryValidator>();
 
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

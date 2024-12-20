@@ -49,5 +49,13 @@ namespace WrocRide.Controllers
             return Ok();
         }
 
+        [HttpGet("{id}/ratings")]
+        public ActionResult<IEnumerable<RatingDto>> GetRatings([FromRoute] int id, [FromQuery] DriverRatingsQuery query)
+        {
+            var result = _driverService.GetRatings(id, query);
+
+            return Ok(result);
+        }
+
     }
 }
