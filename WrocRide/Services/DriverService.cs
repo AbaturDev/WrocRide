@@ -13,6 +13,7 @@ namespace WrocRide.Services
         DriverDto GetById(int id);
         void UpdatePricing(int id, UpdateDriverPricingDto dto);
         void UpdateStatus(int id, UpdateDriverStatusDto dto);
+        PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query);
     }
 
     public class DriverService : IDriverService
@@ -100,6 +101,47 @@ namespace WrocRide.Services
 
             driver.DriverStatus = dto.DriverStatus;
             _dbContext.SaveChanges();
+        }
+
+        public PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query)
+        {
+            var driver = _dbContext.Drivers
+                .Include(d => d.Rides)
+                .ThenInclude(d => d.Rating)
+                .FirstOrDefault(d => d.Id == id);
+
+            if(driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            var rides = _dbContext.Rides
+                .Include(r => r.Rating)
+                .Include(r => r.Driver)
+                    .ThenInclude(r => r.User)
+                .Include(r => r.Client)
+                    .ThenInclude(r => r.User)
+                .Where(r => r.DriverId == driver.Id);
+
+            var ratings = rides
+                .Where(r => r.Rating != null)
+                .Select(r => new RatingDto()
+                {
+                    Grade = r.Rating.Grade,
+                    Comment = r.Rating.Comment,
+                    CreatedAt = r.Rating.CreatedAt,
+                    ClientName = r.Client.User.Name,
+                    ClientSurename = r.Client.User.Surename,
+                    DriverName = r.Driver.User.Name,
+                    DriverSurename = r.Driver.User.Surename
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, ratings.Count);
+         
+            return result;
         }
     }
 }

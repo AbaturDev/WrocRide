@@ -15,5 +15,6 @@ namespace WrocRide.Entities
         public virtual Driver Driver { get; set; }
         public int ClientId { get; set; }
         public virtual Client Client { get; set; }
+        public virtual Rating Rating { get; set; }
     }
 }

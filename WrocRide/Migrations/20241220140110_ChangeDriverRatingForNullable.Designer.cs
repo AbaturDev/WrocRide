@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WrocRide.Entities;
 
@@ -11,9 +12,11 @@ using WrocRide.Entities;
 namespace WrocRide.Migrations
 {
     [DbContext(typeof(WrocRideDbContext))]
-    partial class WrocRideDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241220140110_ChangeDriverRatingForNullable")]
+    partial class ChangeDriverRatingForNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,7 +428,7 @@ namespace WrocRide.Migrations
                         .IsRequired();
 
                     b.HasOne("WrocRide.Entities.Driver", "Driver")
-                        .WithMany("Rides")
+                        .WithMany()
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -450,11 +453,6 @@ namespace WrocRide.Migrations
                 {
                     b.Navigation("Driver")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("WrocRide.Entities.Driver", b =>
-                {
-                    b.Navigation("Rides");
                 });
 
             modelBuilder.Entity("WrocRide.Entities.Ride", b =>
