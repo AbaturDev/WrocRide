@@ -45,6 +45,8 @@ namespace WrocRide.Services
             _dbContext.Ratings.Add(raiting);
             _dbContext.SaveChanges();
 
+            UpdateDriverAverageRating(ride.DriverId);
+
             return raiting.Id;
         }
 
@@ -66,6 +68,8 @@ namespace WrocRide.Services
             ride.Rating.Comment = dto.Comment;
 
             _dbContext.SaveChanges();
+
+            UpdateDriverAverageRating(ride.DriverId);
         }
 
         public void Delete(int rideId)
@@ -84,6 +88,8 @@ namespace WrocRide.Services
 
             _dbContext.Ratings.Remove(ride.Rating);
             _dbContext.SaveChanges();
+
+            UpdateDriverAverageRating(ride.DriverId);
         }
 
         public RatingDto Get(int rideId)
@@ -135,6 +141,25 @@ namespace WrocRide.Services
             }
 
             return ride;
+        }
+
+        private void UpdateDriverAverageRating(int driverId)
+        {
+            var driver = _dbContext.Drivers
+                .FirstOrDefault(r => r.Id == driverId);
+
+            if(driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            var averageRating = _dbContext.Rides
+                .Include(r => r.Rating)
+                .Where(r => r.DriverId == driverId && r.Rating != null)
+                .Average(r => r.Rating.Grade);
+
+            driver.Rating = (float)averageRating;
+            _dbContext.SaveChanges();
         }
     }
 }

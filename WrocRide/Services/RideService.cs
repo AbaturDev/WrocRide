@@ -124,6 +124,7 @@ namespace WrocRide.Services
                     .ThenInclude(d => d.Car)
                 .Include(r => r.Driver)
                     .ThenInclude(d => d.User)
+                .Include(r => r.Rating)
                 .Where(r => r.RideStatus == RideStatus.Ended || r.RideStatus == RideStatus.Canceled)
                 .FirstOrDefault(r => r.Id == id);
 
@@ -153,8 +154,12 @@ namespace WrocRide.Services
                 DriverId = ride.DriverId,
                 CarModel = ride.Driver.Car.Model,
                 CarBrand = ride.Driver.Car.Brand,
-                Grade = 1                                       //to add review grade with validation (when reviews will be implemented)
             };
+
+            if(ride.Rating != null)
+            {
+                rideDeatails.Grade = ride.Rating.Grade;
+            }
 
             return rideDeatails;
         }

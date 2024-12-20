@@ -136,7 +136,6 @@ namespace WrocRide.Services
                 {
                     UserId = newUser.Id,
                     Pricing = dto.Pricing,
-                    Rating = 0,
                     DriverStatus = DriverStatus.UnderVerification,
                     DocumentId = document.Id,
                     CarId = car.Id
