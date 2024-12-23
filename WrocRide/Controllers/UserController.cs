@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 using Microsoft.AspNetCore.Authorization;
-=======
-﻿using Microsoft.AspNetCore.Authorization;
->>>>>>> bd2fc02 (feat: Add UpdateUserDtoValidator. Add authorization to UserControler.)
 using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
 using WrocRide.Models;

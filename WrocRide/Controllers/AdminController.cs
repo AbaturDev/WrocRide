@@ -12,7 +12,7 @@ namespace WrocRide.Controllers
     {
         private readonly IAdminService _adminService;
 
-        public AdminController(IAdminService adminService)
+        public AdminController(IAdminService adminService, IUserService userService)
         {
             _adminService = adminService;
         }
@@ -30,15 +30,31 @@ namespace WrocRide.Controllers
         {
             _adminService.UpdateDocument(id, dto);
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpGet("documents/{driverId}")]
         public ActionResult<DocumentDto> GetDocumentByDriverId([FromRoute] int driverId)
         {
-            var result = _adminService.GetByDriverId(driverId);
+            var result = _adminService.GetDocumentByDriverId(driverId);
 
             return Ok(result);
+        }
+
+        [HttpGet("users")]
+        public ActionResult<IEnumerable<UserDto>> GetUsers([FromQuery] UserQuery query)
+        {
+            var result = _adminService.GetAll(query);
+
+            return Ok(result);
+        }
+
+        [HttpPut("users/{userId}")]
+        public ActionResult UpdateUser([FromRoute] int userId, [FromBody] UpdateUserDto dto)
+        {
+            _adminService.UpdateUser(userId, dto);
+
+            return Ok();
         }
     }
 }
