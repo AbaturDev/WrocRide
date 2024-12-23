@@ -1,4 +1,5 @@
-﻿using WrocRide.Models.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using WrocRide.Models.Enums;
 
 namespace WrocRide.Models
 {
@@ -6,6 +7,6 @@ namespace WrocRide.Models
     {
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 5;
-        public DocumentStatus DocumentStatus { get; set; } = DocumentStatus.UnderVerification;
+        public DocumentStatus? DocumentStatus { get; set; }
     }
 }
