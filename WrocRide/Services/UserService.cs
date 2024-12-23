@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
+using WrocRide.Helpers;
 using WrocRide.Models;
 
 namespace WrocRide.Services
@@ -51,7 +52,7 @@ namespace WrocRide.Services
 
             var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            if(user == null)
+            if (user == null)
             {
                 throw new NotFoundException("User not found");
             }

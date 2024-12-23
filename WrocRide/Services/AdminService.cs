@@ -5,6 +5,10 @@ using WrocRide.Models;
 using WrocRide.Exceptions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace WrocRide.Services
 {
@@ -15,7 +19,6 @@ namespace WrocRide.Services
         DocumentDto GetDocumentByDriverId(int id);
         PagedList<UserDto> GetAll(UserQuery query);
         void UpdateUser(int id, UpdateUserDto dto);
-
     }
     public class AdminService : IAdminService
     {
@@ -107,6 +110,7 @@ namespace WrocRide.Services
                 throw new Exception();
             }        }
 
+
         public DocumentDto GetDocumentByDriverId(int id)
         {
             var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
@@ -133,7 +137,6 @@ namespace WrocRide.Services
 
             return result;
         }
-
         public PagedList<UserDto> GetAll(UserQuery query)
         {
             IQueryable<User> baseQuery = _dbContext.Users;
