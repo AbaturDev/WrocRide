@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
 using WrocRide.Models;
@@ -31,7 +31,7 @@ namespace WrocRide.Controllers
         {
             _userService.UpdateUser(dto);
 
-            return Ok();
+            return NoContent();
         }
     }
 }
