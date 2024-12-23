@@ -31,7 +31,8 @@ namespace WrocRide.Controllers
         {
             _userService.UpdateUser(dto);
 
-            return NoContent();
+            return Ok();
         }
+
     }
 }

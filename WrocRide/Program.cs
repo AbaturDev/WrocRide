@@ -39,6 +39,10 @@ builder.Services.AddScoped<IValidator<CreateRatingDto>, CreateRatingDtoValidator
 builder.Services.AddScoped<IValidator<DriverRatingsQuery>, DriverRatingsQueryValidator>();
 builder.Services.AddScoped<IValidator<DocumentQuery>, DocumentQueryValidator>();
 builder.Services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0df1e0e (feat: Add GetAll in AdminService to display all users. Add filtering on roleId to GetAll. Add UpdateUser to allow admin to make changes in users profile.)
 
 
 builder.Services.AddScoped<IDriverService, DriverService>();
