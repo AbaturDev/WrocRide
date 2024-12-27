@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WrocRide.Entities;
 
@@ -11,9 +12,11 @@ using WrocRide.Entities;
 namespace WrocRide.Migrations
 {
     [DbContext(typeof(WrocRideDbContext))]
-    partial class WrocRideDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241227173857_AddBalanceForUser")]
+    partial class AddBalanceForUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,9 +143,8 @@ namespace WrocRide.Migrations
                     b.Property<int>("DriverStatus")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Pricing")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("Pricing")
+                        .HasColumnType("real");
 
                     b.Property<float?>("Rating")
                         .HasColumnType("real");
@@ -239,9 +241,8 @@ namespace WrocRide.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Coast")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float?>("Coast")
+                        .HasColumnType("real");
 
                     b.Property<string>("Destination")
                         .IsRequired()

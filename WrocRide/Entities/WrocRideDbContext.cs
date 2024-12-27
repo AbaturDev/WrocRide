@@ -38,6 +38,18 @@ namespace WrocRide.Entities
                 .WithOne()
                 .HasForeignKey<Driver>(r => r.DocumentId)
                 .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<User>()
+                .Property(u => u.Balance)
+                .HasPrecision(18, 2);
+            
+            modelBuilder.Entity<Ride>()
+                .Property(u => u.Coast)
+                .HasPrecision(18, 2);
+            
+            modelBuilder.Entity<Driver>()
+                .Property(u => u.Pricing)
+                .HasPrecision(18, 2);
 
             base.OnModelCreating(modelBuilder);
         }

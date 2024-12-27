@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
-using WrocRide.Helpers;
 using WrocRide.Models;
 
 namespace WrocRide.Services
@@ -10,6 +10,7 @@ namespace WrocRide.Services
     {
         UserDto GetUser();
         void UpdateUser(UpdateUserDto dto);
+        void AddCredits(AddCreditsDto dto);
     }
     public class UserService : IUserService
     {
@@ -27,7 +28,9 @@ namespace WrocRide.Services
         {
             var userId = _userContextService.GetUserId;
 
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            var user = _dbContext.Users
+                .Include(u => u.Role)
+                .FirstOrDefault(u => u.Id == userId);
 
             if(user == null)
             {
@@ -40,7 +43,9 @@ namespace WrocRide.Services
                 Surename = user.Surename,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                JoinAt = user.JoinAt
+                JoinAt = user.JoinAt,
+                Balance = user.Balance,
+                Role = user.Role.Name
             };
 
             return result;
@@ -83,6 +88,22 @@ namespace WrocRide.Services
                 user.PasswordHash = hashedPassword;
             }
 
+            _dbContext.SaveChanges();
+        }
+
+        public void AddCredits(AddCreditsDto dto)
+        {
+            var userId = _userContextService.GetUserId;
+            
+            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            user.Balance += dto.Credits;
+            
             _dbContext.SaveChanges();
         }
     }

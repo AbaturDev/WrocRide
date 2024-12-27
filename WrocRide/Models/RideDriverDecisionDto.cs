@@ -2,6 +2,6 @@
 {
     public class RideDriverDecisionDto : UpdateRideStatusDto
     {
-        public float? Coast { get; set; }
+        public decimal? Coast { get; set; }
     }
 }

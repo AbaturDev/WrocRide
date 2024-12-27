@@ -110,7 +110,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, rides.Count());
+            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, rides.Count);
 
             return result;
         }
@@ -181,6 +181,8 @@ namespace WrocRide.Services
         {
             var ride = _dbContext.Rides
                 .Include(r => r.Driver)
+                .Include(r => r.Client)
+                    .ThenInclude(c => c.User)
                 .FirstOrDefault(r => r.Id == id);
 
             if (ride == null)
@@ -198,12 +200,16 @@ namespace WrocRide.Services
                     ride.Driver.DriverStatus = DriverStatus.Occupied;
                     ride.Coast = dto.Coast;
                 }
-
                 else if (dto.RideStatus == RideStatus.Canceled)
                 {
                     ride.EndDate = DateTime.Now;
                 }
-
+                else if (ride.Client.User.Balance < dto.Coast)
+                {
+                    ride.RideStatus = RideStatus.Canceled;
+                    ride.EndDate = DateTime.Now;
+                }
+                
                 _dbContext.SaveChanges();
                 dbContextTransaction.Commit();
             }
@@ -266,6 +272,7 @@ namespace WrocRide.Services
             var userId = _userContext.GetUserId;
 
             var driver = _dbContext.Drivers
+                .Include(d => d.User)    
                 .FirstOrDefault(d => d.UserId == userId);
 
             if(driver == null)
@@ -274,6 +281,8 @@ namespace WrocRide.Services
             }
 
             var ride = _dbContext.Rides
+                .Include(r => r.Client)
+                    .ThenInclude(c => c.User)
                 .FirstOrDefault(r => r.DriverId == driver.Id && r.Id == id && r.RideStatus == RideStatus.Ongoing);
 
             if(ride == null)
@@ -288,7 +297,10 @@ namespace WrocRide.Services
                 ride.RideStatus = RideStatus.Ended;
 
                 driver.DriverStatus = DriverStatus.Available;
+                driver.User.Balance += ride.Coast.Value;
 
+                ride.Client.User.Balance -= ride.Coast.Value;
+                
                 _dbContext.SaveChanges();
                 dbContextTransaction.Commit();
             }
@@ -297,8 +309,6 @@ namespace WrocRide.Services
                 dbContextTransaction.Rollback();
                 throw new Exception();
             }
-
         }
-
     }
 }
