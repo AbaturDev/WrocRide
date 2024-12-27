@@ -45,6 +45,7 @@ builder.Services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
 
 builder.Services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
 
+
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICarService, CarService>();
