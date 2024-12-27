@@ -2,7 +2,7 @@
 {
     public class RegisterDriverDto : RegisterUserDto
     {
-        public float Pricing { get; set; }
+        public decimal Pricing { get; set; }
         public string FileLocation { get; set; }
         public string LicensePlate { get; set; }
         public string Brand { get; set; }

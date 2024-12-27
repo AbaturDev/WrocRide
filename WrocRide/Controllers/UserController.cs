@@ -34,5 +34,12 @@ namespace WrocRide.Controllers
             return Ok();
         }
 
+        [HttpPut("balance")]
+        public ActionResult AddCredits([FromBody] AddCreditsDto dto)
+        {
+            _userService.AddCredits(dto);
+            
+            return Ok();
+        }
     }
 }

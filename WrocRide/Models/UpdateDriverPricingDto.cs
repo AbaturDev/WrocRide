@@ -4,6 +4,6 @@ namespace WrocRide.Models
 {
     public class UpdateDriverPricingDto
     {
-        public float Pricing { get; set; }
+        public decimal Pricing { get; set; }
     }
 }

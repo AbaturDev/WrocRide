@@ -15,7 +15,7 @@ namespace WrocRide.Models
 
     public record RideDeatailsDto : RideDto
     {
-        public float? Coast { get; set; }
+        public decimal? Coast { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public RideStatus RideStatus { get; set; }
