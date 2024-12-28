@@ -46,7 +46,8 @@ namespace WrocRide.Services
                     PhoneNumber = dto.PhoneNumber,
                     RoleId = dto.RoleId,
                     JoinAt = DateTime.Now,
-                    Balance = 0
+                    Balance = 0,
+                    IsActive = true
                 };
 
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
@@ -105,7 +106,8 @@ namespace WrocRide.Services
                     PhoneNumber = dto.PhoneNumber,
                     RoleId = dto.RoleId,
                     JoinAt = DateTime.Now,
-                    Balance = 0
+                    Balance = 0,
+                    IsActive = false
                 };
 
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
@@ -177,7 +179,8 @@ namespace WrocRide.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, $"{user.Name} {user.Surename}"),
-                new Claim(ClaimTypes.Role, $"{user.Role.Name}")
+                new Claim(ClaimTypes.Role, $"{user.Role.Name}"),
+                new Claim("IsActive", user.IsActive.ToString())
             };
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtAuthentication.Key));

@@ -204,7 +204,7 @@ namespace WrocRide.Services
                 {
                     ride.EndDate = DateTime.Now;
                 }
-                else if (ride.Client.User.Balance < dto.Coast)
+                else if (ride.Client.User.Balance <= dto.Coast)
                 {
                     ride.RideStatus = RideStatus.Canceled;
                     ride.EndDate = DateTime.Now;
