@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WrocRide.Entities;
 using WrocRide.Models;
 using WrocRide.Models.Enums;
@@ -6,6 +7,7 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
+    [Authorize(Policy = "IsActivePolicy")]
     [Route("api/driver")]
     [ApiController]
     public class DriverController : ControllerBase

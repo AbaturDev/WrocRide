@@ -12,6 +12,8 @@ using WrocRide.Seeders;
 using WrocRide.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using WrocRide.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,8 @@ builder.Services.AddScoped<IValidator<DriverRatingsQuery>, DriverRatingsQueryVal
 builder.Services.AddScoped<IValidator<AddCreditsDto>, AddCreditsDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentQuery>, DocumentQueryValidator>();
 builder.Services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
+
+builder.Services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
 
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -73,6 +77,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
     };
 
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsActivePolicy", policy =>
+    {
+        policy.Requirements.Add(new ActiveUserRequirement());
+    });
 });
 
 var app = builder.Build();

@@ -6,9 +6,10 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
+    [Authorize(Roles = "Client")]
+    [Authorize(Policy = "IsActivePolicy")]
     [Route("api/ride/{rideId}/rating")]
     [ApiController]
-    [Authorize(Roles = "Client")]
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;

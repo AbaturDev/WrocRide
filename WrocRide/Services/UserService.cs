@@ -11,6 +11,7 @@ namespace WrocRide.Services
         UserDto GetUser();
         void UpdateUser(UpdateUserDto dto);
         void AddCredits(AddCreditsDto dto);
+        void DeactivateAccount();
     }
     public class UserService : IUserService
     {
@@ -104,6 +105,20 @@ namespace WrocRide.Services
 
             user.Balance += dto.Credits;
             
+            _dbContext.SaveChanges();
+        }
+
+        public void DeactivateAccount()
+        {
+            var userId = _userContextService.GetUserId;
+
+            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            user.IsActive = false;
             _dbContext.SaveChanges();
         }
     }

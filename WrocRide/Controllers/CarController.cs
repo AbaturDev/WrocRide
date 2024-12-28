@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WrocRide.Models;
 using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
+    [Authorize(Policy = "IsActivePolicy")]
     [Route("api/driver/{driverId}/car")]
     [ApiController]
     public class CarController : ControllerBase

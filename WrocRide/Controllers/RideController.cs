@@ -8,9 +8,9 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
+    [Authorize(Policy = "IsActivePolicy")]
     [Route("api/ride")]
     [ApiController]
-    [Authorize]
     public class RideController : ControllerBase
     {
         private readonly IRideService _rideService;

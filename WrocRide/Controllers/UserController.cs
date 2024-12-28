@@ -6,7 +6,7 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "IsActivePolicy")]
     [ApiController]
     [Route("api/me")]
     public class UserController : ControllerBase
@@ -39,6 +39,14 @@ namespace WrocRide.Controllers
         {
             _userService.AddCredits(dto);
             
+            return Ok();
+        }
+
+        [HttpPut("deactivate-account")]
+        public ActionResult DeactivateAccount()
+        {
+            _userService.DeactivateAccount();
+
             return Ok();
         }
     }
