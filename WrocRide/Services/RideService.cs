@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
 using WrocRide.Helpers;
 using WrocRide.Models;
 using WrocRide.Models.Enums;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WrocRide.Services
 {
     public interface IRideService
     {
         int CreateRide(CreateRideDto dto);
+        int CreateRideReservation(CreateRideReservationDto dto);
         PagedList<RideDto> GetAll(RideQuery query);
         RideDeatailsDto GetById(int id);
         void UpdateRideStatus(int id, UpdateRideStatusDto dto);
@@ -52,11 +51,69 @@ namespace WrocRide.Services
             var ride = new Ride()
             {
                 ClientId = client.Id,
-                RideStatus = RideStatus.WaitingForDriver,
+                RideStatus = RideStatus.Pending,
                 DriverId = dto.DriverId,
                 PickUpLocation = dto.PickUpLocation,
                 Destination = dto.Destination,
                 StartDate = DateTime.Now
+            };
+
+            _dbContext.Rides.Add(ride);
+            _dbContext.SaveChanges();
+
+            return ride.Id;
+        }
+
+        public int CreateRideReservation(CreateRideReservationDto dto)
+        {
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == dto.DriverId);
+            if (driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            var userId = _userContext.GetUserId;
+
+            var client = _dbContext.Clients
+                .Include(c => c.User)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (client == null)
+            {
+                throw new BadRequestException("This user is not a client. Failed request for a ride");
+            }
+            
+            var hasReservation = _dbContext.Rides
+                .Where(r => r.ClientId == client.Id)
+                .Any(r => r.StartDate <= dto.StartDate && 
+                          (r.EndDate == null || r.EndDate >= dto.StartDate));
+
+            if (hasReservation)
+            {
+                throw new BadRequestException("Client already has a reservation at requested time");
+            }
+            
+            var conflictingRides = _dbContext.Rides
+                .Where(r => r.DriverId == driver.Id)
+                .Where(r => r.RideStatus == RideStatus.Accepted || 
+                            r.RideStatus == RideStatus.Ongoing || 
+                            r.RideStatus == RideStatus.Reserved)
+                .Any(r => r.StartDate <= dto.StartDate &&
+                          (r.EndDate == null || r.EndDate >= dto.StartDate));
+
+            if (conflictingRides)
+            {
+                throw new BadRequestException("Driver is not available at the requested time");
+            }
+            
+            var ride = new Ride()
+            {
+                ClientId = client.Id,
+                RideStatus = RideStatus.ReservationRequested,
+                DriverId = dto.DriverId,
+                PickUpLocation = dto.PickUpLocation,
+                Destination = dto.Destination,
+                StartDate = dto.StartDate
             };
 
             _dbContext.Rides.Add(ride);
@@ -96,6 +153,11 @@ namespace WrocRide.Services
                 baseQuery = baseQuery.Where(r => r.DriverId == driver.Id);
             }
 
+            if (query.RideStatus != null)
+            {
+                baseQuery = baseQuery.Where(r => r.RideStatus == query.RideStatus);
+            }
+
             var rides = baseQuery
                 .Select(r => new RideDto()
                 {
@@ -104,7 +166,8 @@ namespace WrocRide.Services
                     DriverName = r.Driver.User.Name,
                     DriverSurename = r.Driver.User.Surename,
                     Destination = r.Destination,
-                    PickUpLocation = r.PickUpLocation
+                    PickUpLocation = r.PickUpLocation,
+                    RideStatus = r.RideStatus
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
@@ -153,13 +216,10 @@ namespace WrocRide.Services
                 ClientId = ride.ClientId,
                 DriverId = ride.DriverId,
                 CarModel = ride.Driver.Car.Model,
-                CarBrand = ride.Driver.Car.Brand,
+                CarBrand = ride.Driver.Car.Brand
             };
 
-            if(ride.Rating != null)
-            {
-                rideDeatails.Grade = ride.Rating.Grade;
-            }
+            rideDeatails.Grade = ride.Rating?.Grade;
 
             return rideDeatails;
         }
@@ -183,6 +243,8 @@ namespace WrocRide.Services
                 .Include(r => r.Driver)
                 .Include(r => r.Client)
                     .ThenInclude(c => c.User)
+                .Where(r => r.RideStatus == RideStatus.Pending 
+                            || r.RideStatus == RideStatus.ReservationRequested)
                 .FirstOrDefault(r => r.Id == id);
 
             if (ride == null)
@@ -193,20 +255,25 @@ namespace WrocRide.Services
             using var dbContextTransaction = _dbContext.Database.BeginTransaction();
             try
             {
-                ride.RideStatus = dto.RideStatus;
-
-                if (dto.RideStatus == RideStatus.Accepted)
+                if (ride.Client.User.Balance <= dto.Coast)
                 {
+                    ride.RideStatus = RideStatus.Canceled;
+                    ride.EndDate = DateTime.Now;
+                }
+                else if (ride.RideStatus == RideStatus.ReservationRequested && dto.RideStatus == RideStatus.Accepted)
+                {
+                    ride.RideStatus = RideStatus.Reserved;
+                    ride.Coast = dto.Coast;
+                }
+                else if (dto.RideStatus == RideStatus.Accepted)
+                {
+                    ride.RideStatus = dto.RideStatus;
                     ride.Driver.DriverStatus = DriverStatus.Occupied;
                     ride.Coast = dto.Coast;
                 }
                 else if (dto.RideStatus == RideStatus.Canceled)
                 {
-                    ride.EndDate = DateTime.Now;
-                }
-                else if (ride.Client.User.Balance <= dto.Coast)
-                {
-                    ride.RideStatus = RideStatus.Canceled;
+                    ride.RideStatus = dto.RideStatus;
                     ride.EndDate = DateTime.Now;
                 }
                 
@@ -237,7 +304,11 @@ namespace WrocRide.Services
                 .Include(r => r.Driver)
                 .FirstOrDefault(r => r.Id == id && 
                     r.ClientId == client.Id && 
-                    (r.RideStatus == RideStatus.WaitingForDriver || r.RideStatus == RideStatus.Accepted));
+                    (r.RideStatus == RideStatus.Pending 
+                     || r.RideStatus == RideStatus.Accepted
+                     || r.RideStatus == RideStatus.ReservationRequested
+                     || r.RideStatus == RideStatus.Reserved
+                     ));
                 
             if(ride == null)
             {

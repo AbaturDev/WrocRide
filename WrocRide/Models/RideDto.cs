@@ -11,6 +11,7 @@ namespace WrocRide.Models
         public string DriverSurename { get; set; }
         public string PickUpLocation { get; set; }
         public string Destination { get; set; }
+        public RideStatus RideStatus { get; set; }
     }
 
     public record RideDeatailsDto : RideDto
@@ -18,7 +19,6 @@ namespace WrocRide.Models
         public decimal? Coast { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public RideStatus RideStatus { get; set; }
         public int DriverId { get; set; }
         public int ClientId { get; set; }
         public string CarBrand { get; set; }
