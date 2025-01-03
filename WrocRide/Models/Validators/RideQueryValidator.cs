@@ -18,6 +18,10 @@ namespace WrocRide.Models.Validators
                         context.AddFailure($"Wrong page size value. Page size must be in {string.Join(",", allowedPageSizes)}");
                     }
                 });
+
+            RuleFor(x => x.RideStatus)
+                .IsInEnum()
+                .When(x => x.RideStatus != null);
         }
     }
 }

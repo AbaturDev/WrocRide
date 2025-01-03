@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WrocRide.Controllers
 {
+    [Authorize(Policy = "IsActivePolicy")]
+    [Authorize(Roles = "Admin")]
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
 
-        public AdminController(IAdminService adminService, IUserService userService)
+        public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
         }

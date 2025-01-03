@@ -29,6 +29,16 @@ namespace WrocRide.Controllers
             return Created($"api/ride/{id}", null);
         }
 
+        [HttpPost("reservation")]
+        [Authorize(Roles = "Client")]
+        public ActionResult CreateRideReservation([FromBody] CreateRideReservationDto dto)
+        {
+            int id = _rideService.CreateRideReservation(dto);
+
+            return Created($"api/ride/{id}", null);
+        }
+        
+
         [HttpGet]
         public ActionResult<PagedList<RideDto>> GetAllRides([FromQuery] RideQuery query)
         {
