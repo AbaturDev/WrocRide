@@ -195,12 +195,7 @@ namespace WrocRide.Services
             {
                 throw new NotFoundException("Ride not found");
             }
-
-            if (ride.Client?.User == null || ride.Driver?.User == null || ride.Driver.Car == null)
-            {
-                throw new BadRequestException("Incomplete ride data");
-            }
-
+    
             var rideDeatails = new RideDeatailsDto()
             {
                 ClientName = ride.Client.User.Name,
