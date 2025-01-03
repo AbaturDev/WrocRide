@@ -37,7 +37,6 @@ namespace WrocRide.Controllers
 
             return Created($"api/ride/{id}", null);
         }
-        
 
         [HttpGet]
         public ActionResult<PagedList<RideDto>> GetAllRides([FromQuery] RideQuery query)

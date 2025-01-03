@@ -42,6 +42,7 @@ builder.Services.AddScoped<IValidator<DriverRatingsQuery>, DriverRatingsQueryVal
 builder.Services.AddScoped<IValidator<AddCreditsDto>, AddCreditsDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentQuery>, DocumentQueryValidator>();
 builder.Services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
+builder.Services.AddScoped<IValidator<CreateRideReservationDto>, CreateRideReservationDtoValidator>();
 
 builder.Services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
 
