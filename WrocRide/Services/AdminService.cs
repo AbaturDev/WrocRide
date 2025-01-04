@@ -4,7 +4,7 @@ using WrocRide.Helpers;
 using WrocRide.Models;
 using WrocRide.Exceptions;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace WrocRide.Services
 {
@@ -95,6 +95,15 @@ namespace WrocRide.Services
 
                     var driverId = driver.Id;
                     _driverService.UpdateStatus(driverId, status);
+
+                    var userDriver = _dbContext.Users.FirstOrDefault(u => u.Id == driver.UserId);
+                    
+                    if (userDriver == null)
+                    {
+                        throw new NotFoundException("User not found");
+                    }
+
+                    userDriver.IsActive = true;
                 }
 
                 _dbContext.SaveChanges();
@@ -104,8 +113,8 @@ namespace WrocRide.Services
             {
                 dbContextTransaction.Rollback();
                 throw new Exception();
-            }        }
-
+            }       
+        }
 
         public DocumentDto GetDocumentByDriverId(int id)
         {
@@ -151,7 +160,9 @@ namespace WrocRide.Services
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber,
                     JoinAt = u.JoinAt,
-                    RoleId = u.RoleId
+                    RoleId = u.RoleId,
+                    IsActive = u.IsActive,
+                    Balance = u.Balance
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
@@ -195,6 +206,11 @@ namespace WrocRide.Services
             {
                 var hashedPassword = _passwordHasher.HashPassword(user, dto.Password);
                 user.PasswordHash = hashedPassword;
+            }
+
+            if (dto.IsActive.HasValue)
+            {
+                user.IsActive = (bool)dto.IsActive;
             }
 
             _dbContext.SaveChanges();

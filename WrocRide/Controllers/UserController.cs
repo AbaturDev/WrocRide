@@ -31,7 +31,7 @@ namespace WrocRide.Controllers
         {
             _userService.UpdateUser(dto);
 
-            return Ok();
+            return NoContent();
         }
 
         [HttpPut("balance")]
