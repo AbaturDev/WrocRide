@@ -18,6 +18,9 @@ namespace WrocRide.Entities
         public DbSet<Role> Roles { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Admin> Admins { get; set; }
+        public DbSet<DayOfWeek> DayOfWeeks { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<ScheduleDay> ScheduleDays { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
