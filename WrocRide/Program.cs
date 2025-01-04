@@ -43,6 +43,7 @@ builder.Services.AddScoped<IValidator<AddCreditsDto>, AddCreditsDtoValidator>();
 builder.Services.AddScoped<IValidator<DocumentQuery>, DocumentQueryValidator>();
 builder.Services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
 builder.Services.AddScoped<IValidator<CreateRideReservationDto>, CreateRideReservationDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateScheduleDto>, CreateScheduleDtoValidator>();
 
 builder.Services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
 
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
