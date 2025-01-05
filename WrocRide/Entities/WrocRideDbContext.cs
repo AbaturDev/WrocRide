@@ -66,6 +66,18 @@ namespace WrocRide.Entities
                 .Property(u => u.Distance)
                 .HasPrecision(8, 3);
 
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reporter) 
+                .WithMany() 
+                .HasForeignKey(r => r.ReporterId) 
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reported) 
+                .WithMany() 
+                .HasForeignKey(r => r.ReportedId) 
+                .OnDelete(DeleteBehavior.Restrict); 
+
             base.OnModelCreating(modelBuilder);
         }
     }

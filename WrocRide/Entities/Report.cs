@@ -7,9 +7,13 @@ namespace WrocRide.Entities
         public string Reason { get; set; }
         public ReportStatus ReportStatus { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int ReporterId { get; set; }
+        public virtual User Reporter { get; set; }
+        public int ReportedId { get; set; }
+        public virtual User Reported { get; set; }
         public int RideId { get; set; }
         public virtual Ride Ride { get; set; }
-        public int AdminId { get; set; }
+        public int? AdminId { get; set; }
         public virtual Admin Admin { get; set; }
     }
 }
