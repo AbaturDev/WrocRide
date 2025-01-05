@@ -57,5 +57,21 @@ namespace WrocRide.Controllers
 
             return Ok();
         }
+
+        [HttpGet("reports")]
+        public ActionResult GetReports([FromQuery] ReportQuery query)
+        {
+            var result = _adminService.GetReports(query);
+
+            return Ok(result);
+        }
+
+        [HttpPut("reports/{id}")]
+        public ActionResult UpdateReport([FromRoute] int id, [FromBody] UpdateReportDto dto)
+        {
+            _adminService.UpdateReport(id, dto);
+
+            return Ok();
+        }
     }
 }
