@@ -15,6 +15,8 @@ namespace WrocRide.Services
         DocumentDto GetDocumentByDriverId(int id);
         PagedList<UserDto> GetAll(UserQuery query);
         void UpdateUser(int id, UpdateUserDto dto);
+        PagedList<ReportDto> GetReports(ReportQuery query);
+        void UpdateReport(int id, UpdateReportDto dto);
     }
     public class AdminService : IAdminService
     {
@@ -214,6 +216,86 @@ namespace WrocRide.Services
             }
 
             _dbContext.SaveChanges();
+        }
+
+        public PagedList<ReportDto> GetReports(ReportQuery query)
+        {
+            IQueryable<Report> baseQuery = _dbContext.Reports;
+
+            if (query.ReportStatus != null)
+            {
+                baseQuery = baseQuery.Where(r => r.ReportStatus == query.ReportStatus);
+            }
+
+            if (query.ReportedId != null)
+            {
+                baseQuery = baseQuery.Where(r => r.ReportedId == query.ReportedId);
+            }
+
+            var reports = baseQuery
+                .Select(r => new ReportDto()
+                {
+                    Id = r.Id,
+                    CreatedAt = r.CreatedAt,
+                    ReportStatus = r.ReportStatus,
+                    Reason = r.Reason,
+                    ReporterId = r.ReporterId,
+                    ReportedId = r.ReportedId,
+                    RideId = r.RideId,
+                    AdminId = r.AdminId
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, reports.Count);
+
+            return result;
+        }
+
+        public void UpdateReport(int id, UpdateReportDto dto)
+        {
+            var userId = _userContextService.GetUserId;
+            var admin = _dbContext.Admins.FirstOrDefault(u => u.UserId == userId);
+
+            if (admin == null)
+            {
+                throw new NotFoundException("Admin not found");
+            }
+
+            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var report = _dbContext.Reports.FirstOrDefault(r => r.Id == id);
+
+                if (report == null)
+                {
+                    throw new NotFoundException("Report not found");
+                }
+
+                report.ReportStatus = dto.ReportStatus;
+                report.AdminId = admin.Id;
+
+                if (dto.ReportStatus == Models.Enums.ReportStatus.Accepted)
+                {
+                    var status = new UpdateUserDto
+                    {
+                        IsActive = false
+                    };
+
+                    UpdateUser(dto.ReportedId, status);
+                }
+
+                _dbContext.SaveChanges();
+                dbContextTransaction.Commit();
+            }
+            catch (Exception)
+            {
+                dbContextTransaction.Rollback();
+                throw new Exception();
+            }
+
+
         }
     }
 }
