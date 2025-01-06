@@ -69,13 +69,13 @@ namespace WrocRide.Entities
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter) 
                 .WithMany() 
-                .HasForeignKey(r => r.ReporterId) 
+                .HasForeignKey(r => r.ReporterUserId) 
                 .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reported) 
                 .WithMany() 
-                .HasForeignKey(r => r.ReportedId) 
+                .HasForeignKey(r => r.ReportedUserId) 
                 .OnDelete(DeleteBehavior.Restrict); 
 
             base.OnModelCreating(modelBuilder);

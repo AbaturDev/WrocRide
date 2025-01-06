@@ -23,28 +23,28 @@ namespace WrocRide.Migrations
                 oldType: "int");
 
             migrationBuilder.AddColumn<int>(
-                name: "ReportedId",
+                name: "ReportedUserId",
                 table: "Reports",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
-                name: "ReporterId",
+                name: "ReporterUserId",
                 table: "Reports",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_ReportedId",
+                name: "IX_Reports_ReportedUserId",
                 table: "Reports",
-                column: "ReportedId");
+                column: "ReportedUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_ReporterId",
+                name: "IX_Reports_ReporterUserId",
                 table: "Reports",
-                column: "ReporterId");
+                column: "ReporterUserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Reports_Admins_AdminId",
@@ -54,17 +54,17 @@ namespace WrocRide.Migrations
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Reports_Users_ReportedId",
+                name: "FK_Reports_Users_ReportedUserId",
                 table: "Reports",
-                column: "ReportedId",
+                column: "ReportedUserId",
                 principalTable: "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Reports_Users_ReporterId",
+                name: "FK_Reports_Users_ReporterUserId",
                 table: "Reports",
-                column: "ReporterId",
+                column: "ReporterUserId",
                 principalTable: "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
@@ -78,27 +78,27 @@ namespace WrocRide.Migrations
                 table: "Reports");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Reports_Users_ReportedId",
+                name: "FK_Reports_Users_ReportedUserId",
                 table: "Reports");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Reports_Users_ReporterId",
+                name: "FK_Reports_Users_ReporterUserId",
                 table: "Reports");
 
             migrationBuilder.DropIndex(
-                name: "IX_Reports_ReportedId",
+                name: "IX_Reports_ReportedUserId",
                 table: "Reports");
 
             migrationBuilder.DropIndex(
-                name: "IX_Reports_ReporterId",
+                name: "IX_Reports_ReporterUserId",
                 table: "Reports");
 
             migrationBuilder.DropColumn(
-                name: "ReportedId",
+                name: "ReportedUserId",
                 table: "Reports");
 
             migrationBuilder.DropColumn(
-                name: "ReporterId",
+                name: "ReporterUserId",
                 table: "Reports");
 
             migrationBuilder.AlterColumn<int>(
