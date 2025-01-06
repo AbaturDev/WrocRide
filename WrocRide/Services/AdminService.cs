@@ -229,7 +229,7 @@ namespace WrocRide.Services
 
             if (query.ReportedId != null)
             {
-                baseQuery = baseQuery.Where(r => r.ReportedId == query.ReportedId);
+                baseQuery = baseQuery.Where(r => r.ReportedUserId == query.ReportedId);
             }
 
             var reports = baseQuery
@@ -239,8 +239,8 @@ namespace WrocRide.Services
                     CreatedAt = r.CreatedAt,
                     ReportStatus = r.ReportStatus,
                     Reason = r.Reason,
-                    ReporterId = r.ReporterId,
-                    ReportedId = r.ReportedId,
+                    ReporterUserId = r.ReporterUserId,
+                    ReportedUserId = r.ReportedUserId,
                     RideId = r.RideId,
                     AdminId = r.AdminId
                 })

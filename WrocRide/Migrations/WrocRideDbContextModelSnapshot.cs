@@ -233,10 +233,10 @@ namespace WrocRide.Migrations
                     b.Property<int>("ReportStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReportedId")
+                    b.Property<int>("ReportedUserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ReporterId")
+                    b.Property<int>("ReporterUserId")
                         .HasColumnType("int");
 
                     b.Property<int>("RideId")
@@ -246,9 +246,9 @@ namespace WrocRide.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.HasIndex("ReportedId");
+                    b.HasIndex("ReportedUserId");
 
-                    b.HasIndex("ReporterId");
+                    b.HasIndex("ReporterUserId");
 
                     b.HasIndex("RideId");
 
@@ -508,13 +508,13 @@ namespace WrocRide.Migrations
 
                     b.HasOne("WrocRide.Entities.User", "Reported")
                         .WithMany()
-                        .HasForeignKey("ReportedId")
+                        .HasForeignKey("ReportedUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("WrocRide.Entities.User", "Reporter")
                         .WithMany()
-                        .HasForeignKey("ReporterId")
+                        .HasForeignKey("ReporterUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

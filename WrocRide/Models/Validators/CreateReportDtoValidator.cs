@@ -6,16 +6,10 @@ namespace WrocRide.Models.Validators
     {
         public CreateReportDtoValidator() 
         {
-            RuleFor(x => x.RideId)
-                .NotEmpty();
-
             RuleFor(x => x.Reason)
                 .NotEmpty()
                 .When(x => x.Reason != null)
                 .MinimumLength(20);
-
-            RuleFor(x => x.ReportedId)
-                .NotEmpty();
         }
     }
 }

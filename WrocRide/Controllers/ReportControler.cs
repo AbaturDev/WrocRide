@@ -5,9 +5,10 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
-    [Route("api/reports")]
+    [Route("api/ride/{rideId}/reports")]
     [ApiController]
     [Authorize(Roles = "Client, Driver")]
+    [Authorize(Policy = "IsActivePolicy")]
     public class ReportControler : ControllerBase
     {
         private readonly IReportService _reportService;
@@ -17,10 +18,34 @@ namespace WrocRide.Controllers
             _reportService = reportService;
         }
 
-        [HttpPost("create")]
-        public ActionResult CreateReport([FromBody] CreateReportDto dto)
+        [HttpPost]
+        public ActionResult CreateReport([FromRoute] int rideId, [FromBody] CreateReportDto dto)
         {
-            _reportService.reportUser(dto);
+            _reportService.CreateReport(rideId, dto);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public ActionResult<ReportDto> Get([FromRoute] int rideId)
+        {
+            var result = _reportService.Get(rideId);
+
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        public ActionResult Delete([FromRoute] int rideId)
+        {
+            _reportService.Delete(rideId);
+
+            return NoContent();
+        }
+
+        [HttpPut]
+        public ActionResult Update([FromRoute] int rideId, [FromBody] CreateReportDto dto)
+        {
+            _reportService.Update(rideId, dto);
 
             return Ok();
         }
