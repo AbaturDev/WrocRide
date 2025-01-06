@@ -6,4 +6,5 @@ public class CreateScheduleDto
     public string Destination { get; set; }
     public TimeSpan StartTime { get; set; }
     public List<int> DayOfWeekIds { get; set; }
+    public decimal BudgetPerRide { get; set; }
 }

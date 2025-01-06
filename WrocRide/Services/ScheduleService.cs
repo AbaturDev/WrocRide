@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
 using WrocRide.Models;
+using WrocRide.Models.Enums;
 
 namespace WrocRide.Services;
 
@@ -10,6 +11,7 @@ public interface IScheduleService
     int CreateSchedule(CreateScheduleDto dto);
     void DeleteSchedule(int id);
     ScheduleDto GetSchedule(int id);
+    void GenerateRidesFromSchedules();
 }
 
 public class ScheduleService : IScheduleService
@@ -33,13 +35,26 @@ public class ScheduleService : IScheduleService
             throw new BadRequestException("User is not a client");
         }
 
+        var conflictingSchedules = _dbContext.Schedules
+            .Include(s => s.ScheduleDays)
+            .Any(s => s.ClientId == client.Id 
+                      && s.ScheduleDays.Any(sd => dto.DayOfWeekIds.Contains(sd.DayOfWeekId) 
+                      && s.StartTime == dto.StartTime));
+
+        if (conflictingSchedules)
+        {
+            throw new BadRequestException("Client already has a schedule at one of the terms");
+        }
+        
         var schedule = new Schedule()
         {
             ClientId = client.Id,
             PickUpLocation = dto.PickUpLocation,
             Destination = dto.Destination,
             StartTime = dto.StartTime,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
+            BudgetPerRide = dto.BudgetPerRide,
+            Distance = 1                            //will be replaced by google api
         };
 
         _dbContext.Schedules.Add(schedule);
@@ -77,8 +92,10 @@ public class ScheduleService : IScheduleService
             ClientId = schedule.ClientId,
             PickUpLocation = schedule.PickUpLocation,
             Destination = schedule.Destination,
+            Distance = schedule.Distance,
             StartTime = schedule.StartTime,
             CreatedAt = schedule.CreatedAt,
+            BudgetPerRide = schedule.BudgetPerRide,
             DaysOfWeek = schedule.ScheduleDays.Select(s => s.DayOfWeek.Day).ToList()
         };
 
@@ -113,5 +130,64 @@ public class ScheduleService : IScheduleService
 
         return schedule;
     }
-    
+
+    public void GenerateRidesFromSchedules()
+    {
+        var today = (int)DateTime.Today.DayOfWeek;
+
+        var schedules = _dbContext.Schedules
+            .Include(s => s.ScheduleDays)
+            .Include(s => s.Client)
+                .ThenInclude(c => c.User)
+            .Where(s => s.ScheduleDays.Any(sd => sd.DayOfWeekId == today))
+            .ToList();
+
+        foreach (var schedule in schedules)
+        {
+            var rideAlreadyExist = _dbContext.Rides
+                .Any(r => r.StartDate.Date == DateTime.Today.Date
+                          && r.StartDate.TimeOfDay == schedule.StartTime
+                          && r.ClientId == schedule.ClientId
+                          && r.RideStatus != RideStatus.Canceled);
+
+            if (rideAlreadyExist)
+            {
+                //signalR
+                continue;
+            }
+            
+            if (schedule.Client.User.Balance < schedule.BudgetPerRide)
+            {
+                //signalR
+                continue;
+            }
+            
+            var driver = _dbContext.Drivers
+                .Where(d => d.DriverStatus == DriverStatus.Available
+                                     && d.Pricing * schedule.Distance <= schedule.BudgetPerRide)
+                .OrderBy(d => d.Rating)
+                .FirstOrDefault();
+            
+            if (driver == null)
+            {
+                //signalR
+                continue;
+            }
+            
+            var ride = new Ride()
+            {
+                StartDate = DateTime.Today + schedule.StartTime,
+                PickUpLocation = schedule.PickUpLocation,
+                Destination = schedule.Destination,
+                DriverId = driver.Id,
+                ClientId = schedule.ClientId,
+                RideStatus = RideStatus.Pending,
+                Distance = schedule.Distance,
+                Coast = driver.Pricing * schedule.Distance
+            };
+
+            _dbContext.Rides.Add(ride);
+            _dbContext.SaveChanges();
+        }
+    }
 }

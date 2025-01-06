@@ -54,6 +54,18 @@ namespace WrocRide.Entities
                 .Property(u => u.Pricing)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Schedule>()
+                .Property(u => u.BudgetPerRide)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Schedule>()
+                .Property(u => u.Distance)
+                .HasPrecision(8, 3);
+            
+            modelBuilder.Entity<Ride>()
+                .Property(u => u.Distance)
+                .HasPrecision(8, 3);
+
             base.OnModelCreating(modelBuilder);
         }
     }
