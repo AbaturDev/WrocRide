@@ -15,5 +15,9 @@ public class CreateScheduleDtoValidator : AbstractValidator<CreateScheduleDto>
         RuleFor(x => x.Destination).NotEmpty();
         
         RuleFor(x => x.DayOfWeekIds).NotEmpty();
+
+        RuleFor(x => x.BudgetPerRide)
+            .NotEmpty()
+            .GreaterThan(0);
     }
 }

@@ -14,7 +14,7 @@ namespace WrocRide.Services
         PagedList<RideDto> GetAll(RideQuery query);
         RideDeatailsDto GetById(int id);
         void UpdateRideStatus(int id, UpdateRideStatusDto dto);
-        void DriverDecision(int id, RideDriverDecisionDto dto);
+        void DriverDecision(int id, UpdateRideStatusDto dto);
         void CancelRide(int id);
         void EndRide(int id);
     }
@@ -31,7 +31,10 @@ namespace WrocRide.Services
 
         public int CreateRide(CreateRideDto dto)
         {
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == dto.DriverId);
+            var driver = _dbContext.Drivers
+                .FirstOrDefault(d => d.Id == dto.DriverId
+                && d.DriverStatus == DriverStatus.Available);
+            
             if (driver == null)
             {
                 throw new NotFoundException("Driver not found");
@@ -55,8 +58,16 @@ namespace WrocRide.Services
                 DriverId = dto.DriverId,
                 PickUpLocation = dto.PickUpLocation,
                 Destination = dto.Destination,
-                StartDate = DateTime.Now
+                StartDate = DateTime.Now,
+                Distance = 1,                    //will be replaced by google api
             };
+
+            ride.Coast = ride.Distance * driver.Pricing;
+
+            if (ride.Coast > client.User.Balance)
+            {
+                throw new BadRequestException("Client does not have enough money for the ride");
+            }
 
             _dbContext.Rides.Add(ride);
             _dbContext.SaveChanges();
@@ -113,8 +124,16 @@ namespace WrocRide.Services
                 DriverId = dto.DriverId,
                 PickUpLocation = dto.PickUpLocation,
                 Destination = dto.Destination,
-                StartDate = dto.StartDate
+                StartDate = dto.StartDate,
+                Distance = 1                            //will be replaced by google api
             };
+            
+            ride.Coast = ride.Distance * driver.Pricing;
+            
+            if (ride.Coast > client.User.Balance)
+            {
+                throw new BadRequestException("Client does not have enough money to reserve this ride");
+            }
 
             _dbContext.Rides.Add(ride);
             _dbContext.SaveChanges();
@@ -166,6 +185,7 @@ namespace WrocRide.Services
                     DriverName = r.Driver.User.Name,
                     DriverSurename = r.Driver.User.Surename,
                     Destination = r.Destination,
+                    Distance = r.Distance,
                     PickUpLocation = r.PickUpLocation,
                     RideStatus = r.RideStatus
                 })
@@ -204,6 +224,7 @@ namespace WrocRide.Services
                 DriverSurename = ride.Driver.User.Surename,
                 PickUpLocation = ride.PickUpLocation,
                 Destination = ride.Destination,
+                Distance = ride.Distance,
                 Coast = ride.Coast,
                 EndDate = ride.EndDate,
                 StartDate = ride.StartDate,
@@ -232,15 +253,24 @@ namespace WrocRide.Services
             _dbContext.SaveChanges();
         }
 
-        public void DriverDecision(int id, RideDriverDecisionDto dto)
+        public void DriverDecision(int id, UpdateRideStatusDto dto)
         {
+            var userId = _userContext.GetUserId;
+
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
+
+            if (driver == null)
+            {
+                throw new BadRequestException("User is not a driver");
+            }
+            
             var ride = _dbContext.Rides
                 .Include(r => r.Driver)
                 .Include(r => r.Client)
                     .ThenInclude(c => c.User)
                 .Where(r => r.RideStatus == RideStatus.Pending 
                             || r.RideStatus == RideStatus.ReservationRequested)
-                .FirstOrDefault(r => r.Id == id);
+                .FirstOrDefault(r => r.Id == id && r.DriverId == driver.Id);
 
             if (ride == null)
             {
@@ -250,21 +280,14 @@ namespace WrocRide.Services
             using var dbContextTransaction = _dbContext.Database.BeginTransaction();
             try
             {
-                if (ride.Client.User.Balance <= dto.Coast)
-                {
-                    ride.RideStatus = RideStatus.Canceled;
-                    ride.EndDate = DateTime.Now;
-                }
-                else if (ride.RideStatus == RideStatus.ReservationRequested && dto.RideStatus == RideStatus.Accepted)
+                 if (ride.RideStatus == RideStatus.ReservationRequested && dto.RideStatus == RideStatus.Accepted)
                 {
                     ride.RideStatus = RideStatus.Reserved;
-                    ride.Coast = dto.Coast;
                 }
                 else if (dto.RideStatus == RideStatus.Accepted)
                 {
                     ride.RideStatus = dto.RideStatus;
                     ride.Driver.DriverStatus = DriverStatus.Occupied;
-                    ride.Coast = dto.Coast;
                 }
                 else if (dto.RideStatus == RideStatus.Canceled)
                 {
@@ -363,9 +386,9 @@ namespace WrocRide.Services
                 ride.RideStatus = RideStatus.Ended;
 
                 driver.DriverStatus = DriverStatus.Available;
-                driver.User.Balance += ride.Coast.Value;
+                driver.User.Balance += ride.Coast;
 
-                ride.Client.User.Balance -= ride.Coast.Value;
+                ride.Client.User.Balance -= ride.Coast;
                 
                 _dbContext.SaveChanges();
                 dbContextTransaction.Commit();

@@ -8,6 +8,8 @@ public class Schedule
     public string Destination { get; set; }
     public TimeSpan StartTime { get; set; }
     public DateTime CreatedAt { get; set; }
+    public decimal Distance { get; set; }
+    public decimal BudgetPerRide { get; set; }
     
     public virtual ICollection<ScheduleDay> ScheduleDays { get; set; }
     public virtual Client Client { get; set; }

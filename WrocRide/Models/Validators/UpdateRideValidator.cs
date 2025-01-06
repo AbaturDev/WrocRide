@@ -11,17 +11,4 @@ namespace WrocRide.Models.Validators
                 .IsInEnum();
         }
     }
-
-    public class RideDriverDecisionDtoValidator : AbstractValidator<RideDriverDecisionDto>
-    {
-        public RideDriverDecisionDtoValidator()
-        {
-            RuleFor(x => x.RideStatus)
-                .NotEmpty()
-                .IsInEnum();
-
-            RuleFor(x => x.Coast)
-                .GreaterThan(0);
-        }
-    }
 }

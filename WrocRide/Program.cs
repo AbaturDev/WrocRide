@@ -34,7 +34,6 @@ builder.Services.AddScoped<IValidator<DriverQuery>, DriverQueryValidator>();
 builder.Services.AddScoped<IValidator<UpdateDriverPricingDto>, UpdateDriverPricingDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateDriverStatusDto>, UpdateDriverStatusDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateRideStatusDto>, UpdateRideStatusDtoValidator>();
-builder.Services.AddScoped<IValidator<RideDriverDecisionDto>, RideDriverDecisionDtoValidator>();
 builder.Services.AddScoped<IValidator<RideQuery>, RideQueryValidator>();
 builder.Services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateRatingDto>, CreateRatingDtoValidator>();
@@ -56,6 +55,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+
+builder.Services.AddHostedService<ScheduleRideGeneratorService>();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();

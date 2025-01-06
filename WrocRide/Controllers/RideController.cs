@@ -63,7 +63,7 @@ namespace WrocRide.Controllers
         }
 
         [HttpPut("{id}/driver-decision")]
-        public ActionResult DriverDecision([FromRoute] int id, [FromBody] RideDriverDecisionDto dto)
+        public ActionResult DriverDecision([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
         {
             _rideService.DriverDecision(id, dto);
 

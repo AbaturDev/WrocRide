@@ -10,6 +10,7 @@ namespace WrocRide.Models
         public string DriverName { get; set; }
         public string DriverSurename { get; set; }
         public string PickUpLocation { get; set; }
+        public decimal Distance { get; set; }
         public string Destination { get; set; }
         public RideStatus RideStatus { get; set; }
     }
