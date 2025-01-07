@@ -45,6 +45,7 @@ builder.Services.AddScoped<IValidator<CreateRideReservationDto>, CreateRideReser
 builder.Services.AddScoped<IValidator<CreateScheduleDto>, CreateScheduleDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateReportDto>, CreateReportDtoValidator>();
 builder.Services.AddScoped<IValidator<ReportQuery>, ReportQueryValidator>();
+builder.Services.AddScoped<IValidator<UpdateReportDto>, UpdateReportDtoValidator>();
 
 builder.Services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
 

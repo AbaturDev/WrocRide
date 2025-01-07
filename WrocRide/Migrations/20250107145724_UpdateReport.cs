@@ -5,7 +5,7 @@
 namespace WrocRide.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateReportsTable : Migration
+    public partial class UpdateReport : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

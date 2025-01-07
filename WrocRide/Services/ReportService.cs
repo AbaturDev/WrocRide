@@ -73,7 +73,7 @@ namespace WrocRide.Services
             }
             else 
             {
-                throw new BadRequestException("User is not part of a ride.");
+                throw new ForbidException("User is not part of a ride.");
             }
 
             _dbContext.SaveChanges();

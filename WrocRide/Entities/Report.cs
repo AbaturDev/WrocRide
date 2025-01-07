@@ -8,9 +8,9 @@ namespace WrocRide.Entities
         public ReportStatus ReportStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public int ReporterUserId { get; set; }
-        public virtual User Reporter { get; set; }
+        public virtual User ReporterUser { get; set; }
         public int ReportedUserId { get; set; }
-        public virtual User Reported { get; set; }
+        public virtual User ReportedUser { get; set; }
         public int RideId { get; set; }
         public virtual Ride Ride { get; set; }
         public int? AdminId { get; set; }
