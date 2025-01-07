@@ -29,7 +29,7 @@ namespace WrocRide.Seeders
                 .RuleFor(u => u.PasswordHash, f => "haslohaslo")
                 .RuleFor(u => u.IsActive, f => true)
                 .RuleFor(u => u.JoinAt, f => f.Date.Past())
-                .RuleFor(u => u.Balance, f => f.PickRandom(0, 10000));
+                .RuleFor(u => u.Balance, f => f.Random.Decimal(0, 10000));
 
             var users = new List<User>();
 

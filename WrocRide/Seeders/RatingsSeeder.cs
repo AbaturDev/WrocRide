@@ -26,7 +26,15 @@ namespace WrocRide.Seeders
             {
                 var rating = faker.Generate();
 
-                rating.CreatedAt = ride.EndDate.Value.AddMinutes(30);
+                if (ride.EndDate.HasValue)
+                {
+                    rating.CreatedAt = ride.EndDate.Value.AddMinutes(30);
+                }
+                else
+                {
+                    rating.CreatedAt = DateTime.Now;
+                }
+
                 rating.RideId = ride.Id;
                 rating.CreatedByClientId = ride.ClientId;
 

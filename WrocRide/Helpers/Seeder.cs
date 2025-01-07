@@ -11,6 +11,7 @@ namespace WrocRide.Seeders
         private const int adminCount = 5;
         private const int driverCount = 20;
         private const int ridesCount = 500;
+        private const int schedulesCount = 10;
 
         public static WebApplication Seed(this WebApplication app)
         {
@@ -33,11 +34,11 @@ namespace WrocRide.Seeders
 
                     RidesSeeder.Seed(context, ridesCount);
                     RatingsSeeder.Seed(context);
+                    ReportsSeeder.Seed(context);
 
-                    DayOfWeeksSeeder.Seed(context);
-                    //schedule
-                    //scheduleDay
-
+                    DayOfWeekSeeder.Seed(context);
+                    SchedulesSeeder.Seed(context, schedulesCount);
+                    ScheduleDaySeeder.Seed(context);
                 }
                 catch(Exception)
                 {

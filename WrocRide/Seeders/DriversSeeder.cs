@@ -26,16 +26,29 @@ namespace WrocRide.Seeders
                 .RuleFor(d => d.Pricing, f => f.Random.Decimal(1, 50))
                 .RuleFor(d => d.DriverStatus, f => f.PickRandomWithout<DriverStatus>(DriverStatus.UnderVerification, DriverStatus.Occupied));
 
-            var driver = sampleDriverUsers.Select((user, index) =>
+
+            var drivers = new List<Driver>();
+
+            for(int i=0; i<sampleDriverUsers.Count; i++)
             {
                 var driver = faker.Generate();
-                driver.UserId = index;
-                driver.CarId = sampleCars[index].Id;
-                driver.DocumentId = sampleDocuments[index].Id;
-                return driver;
-            });
+                driver.UserId = sampleDriverUsers[i].Id;
+                driver.CarId = sampleCars[i].Id;
+                driver.DocumentId = sampleDocuments[i].Id;
 
-            dbContext.Drivers.AddRange(driver);
+                drivers.Add(driver);
+            }
+
+            //var driver = sampleDriverUsers.Select((user, index) =>
+            //{
+            //    var driver = faker.Generate();
+            //    driver.UserId = index;
+            //    driver.CarId = sampleCars[index].Id;
+            //    driver.DocumentId = sampleDocuments[index].Id;
+            //    return driver;
+            //});
+
+            dbContext.Drivers.AddRange(drivers);
             dbContext.SaveChanges();
         }
 

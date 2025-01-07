@@ -3,7 +3,7 @@ using DayOfWeek = WrocRide.Entities.DayOfWeek;
 
 namespace WrocRide.Seeders
 {
-    public class DayOfWeeksSeeder
+    public class DayOfWeekSeeder
     {
         public static void Seed(WrocRideDbContext dbContext)
         {
