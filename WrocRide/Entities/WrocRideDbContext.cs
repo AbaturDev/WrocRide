@@ -67,13 +67,13 @@ namespace WrocRide.Entities
                 .HasPrecision(8, 3);
 
             modelBuilder.Entity<Report>()
-                .HasOne(r => r.Reporter) 
+                .HasOne(r => r.ReporterUser) 
                 .WithMany() 
                 .HasForeignKey(r => r.ReporterUserId) 
                 .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<Report>()
-                .HasOne(r => r.Reported) 
+                .HasOne(r => r.ReportedUser) 
                 .WithMany() 
                 .HasForeignKey(r => r.ReportedUserId) 
                 .OnDelete(DeleteBehavior.Restrict); 

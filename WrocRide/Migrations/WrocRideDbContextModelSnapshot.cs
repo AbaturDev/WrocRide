@@ -506,13 +506,13 @@ namespace WrocRide.Migrations
                         .WithMany()
                         .HasForeignKey("AdminId");
 
-                    b.HasOne("WrocRide.Entities.User", "Reported")
+                    b.HasOne("WrocRide.Entities.User", "ReportedUser")
                         .WithMany()
                         .HasForeignKey("ReportedUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WrocRide.Entities.User", "Reporter")
+                    b.HasOne("WrocRide.Entities.User", "ReporterUser")
                         .WithMany()
                         .HasForeignKey("ReporterUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -526,9 +526,9 @@ namespace WrocRide.Migrations
 
                     b.Navigation("Admin");
 
-                    b.Navigation("Reported");
+                    b.Navigation("ReportedUser");
 
-                    b.Navigation("Reporter");
+                    b.Navigation("ReporterUser");
 
                     b.Navigation("Ride");
                 });

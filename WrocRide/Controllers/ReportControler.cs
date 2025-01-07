@@ -5,7 +5,7 @@ using WrocRide.Services;
 
 namespace WrocRide.Controllers
 {
-    [Route("api/ride/{rideId}/reports")]
+    [Route("api/ride/{rideId}/report")]
     [ApiController]
     [Authorize(Roles = "Client, Driver")]
     [Authorize(Policy = "IsActivePolicy")]

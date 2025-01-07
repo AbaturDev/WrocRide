@@ -260,7 +260,7 @@ namespace WrocRide.Services
 
             if (admin == null)
             {
-                throw new NotFoundException("Admin not found");
+                throw new ForbidException("User is not an admin.");
             }
 
             using var dbContextTransaction = _dbContext.Database.BeginTransaction();
@@ -283,7 +283,7 @@ namespace WrocRide.Services
                         IsActive = false
                     };
 
-                    UpdateUser(dto.ReportedId, status);
+                    UpdateUser(report.ReportedUserId, status);
                 }
 
                 _dbContext.SaveChanges();

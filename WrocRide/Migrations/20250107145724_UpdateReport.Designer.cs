@@ -12,8 +12,8 @@ using WrocRide.Entities;
 namespace WrocRide.Migrations
 {
     [DbContext(typeof(WrocRideDbContext))]
-    [Migration("20250106125153_UpdateReportsTable")]
-    partial class UpdateReportsTable
+    [Migration("20250107145724_UpdateReport")]
+    partial class UpdateReport
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,6 +93,23 @@ namespace WrocRide.Migrations
                         .IsUnique();
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.DayOfWeek", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DayOfWeeks");
                 });
 
             modelBuilder.Entity("WrocRide.Entities.Document", b =>
@@ -252,13 +269,17 @@ namespace WrocRide.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("Coast")
+                    b.Property<decimal>("Coast")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Distance")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("decimal(8,3)");
 
                     b.Property<int>("DriverId")
                         .HasColumnType("int");
@@ -300,6 +321,69 @@ namespace WrocRide.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.Schedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BudgetPerRide")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Distance")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("decimal(8,3)");
+
+                    b.Property<string>("PickUpLocation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("Schedules");
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.ScheduleDay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DayOfWeekId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DayOfWeekId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("ScheduleDays");
                 });
 
             modelBuilder.Entity("WrocRide.Entities.User", b =>
@@ -425,13 +509,13 @@ namespace WrocRide.Migrations
                         .WithMany()
                         .HasForeignKey("AdminId");
 
-                    b.HasOne("WrocRide.Entities.User", "Reported")
+                    b.HasOne("WrocRide.Entities.User", "ReportedUser")
                         .WithMany()
                         .HasForeignKey("ReportedUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("WrocRide.Entities.User", "Reporter")
+                    b.HasOne("WrocRide.Entities.User", "ReporterUser")
                         .WithMany()
                         .HasForeignKey("ReporterUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -445,9 +529,9 @@ namespace WrocRide.Migrations
 
                     b.Navigation("Admin");
 
-                    b.Navigation("Reported");
+                    b.Navigation("ReportedUser");
 
-                    b.Navigation("Reporter");
+                    b.Navigation("ReporterUser");
 
                     b.Navigation("Ride");
                 });
@@ -469,6 +553,36 @@ namespace WrocRide.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Driver");
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.Schedule", b =>
+                {
+                    b.HasOne("WrocRide.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.ScheduleDay", b =>
+                {
+                    b.HasOne("WrocRide.Entities.DayOfWeek", "DayOfWeek")
+                        .WithMany()
+                        .HasForeignKey("DayOfWeekId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WrocRide.Entities.Schedule", "Schedule")
+                        .WithMany("ScheduleDays")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DayOfWeek");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("WrocRide.Entities.User", b =>
@@ -497,6 +611,11 @@ namespace WrocRide.Migrations
                 {
                     b.Navigation("Rating")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WrocRide.Entities.Schedule", b =>
+                {
+                    b.Navigation("ScheduleDays");
                 });
 
             modelBuilder.Entity("WrocRide.Entities.User", b =>
