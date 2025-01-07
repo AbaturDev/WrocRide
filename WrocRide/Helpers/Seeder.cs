@@ -7,6 +7,11 @@ namespace WrocRide.Seeders
 {
     public static class Seeder
     {
+        private const int clientCount = 75;
+        private const int adminCount = 5;
+        private const int driverCount = 20;
+        private const int ridesCount = 500;
+
         public static WebApplication Seed(this WebApplication app)
         {
             using(var scope = app.Services.CreateScope())
@@ -17,65 +22,22 @@ namespace WrocRide.Seeders
                 {
                     context.Database.EnsureCreated();
 
-                    if(!context.Roles.Any())
-                    {
-                        var roles = new List<Role>()
-                        {
-                            new Role()
-                            {
-                                Name = "Client"
-                            },
-                            new Role()
-                            {
-                                Name = "Driver"
-                            },
-                            new Role()
-                            {
-                                Name = "Admin"
-                            }
-                        };
+                    RolesSeeder.Seed(context);
+                    UsersSeeder.Seed(context, clientCount, adminCount, driverCount);
+                    ClientsSeeder.Seed(context);
+                    AdminsSeeder.Seed(context);
 
-                        context.Roles.AddRange(roles);
-                        context.SaveChanges();
-                    }
+                    DocumentsSeeder.Seed(context);
+                    CarsSeeder.Seed(context);
+                    DriversSeeder.Seed(context);
 
-                    if (!context.DayOfWeeks.Any())
-                    {
-                        var days = new List<DayOfWeek>()
-                        {
-                            new DayOfWeek()
-                            {
-                                Day = "Monday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Tuesday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Wednesday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Thursday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Friday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Saturday"
-                            },
-                            new DayOfWeek()
-                            {
-                                Day = "Sunday"
-                            },
-                        };
-                        
-                        context.DayOfWeeks.AddRange(days);
-                        context.SaveChanges();
-                    }
+                    RidesSeeder.Seed(context, ridesCount);
+                    RatingsSeeder.Seed(context);
+
+                    DayOfWeeksSeeder.Seed(context);
+                    //schedule
+                    //scheduleDay
+
                 }
                 catch(Exception)
                 {
