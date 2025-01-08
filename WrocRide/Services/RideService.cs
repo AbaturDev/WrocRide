@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 using WrocRide.Exceptions;
 using WrocRide.Helpers;
@@ -22,11 +23,13 @@ namespace WrocRide.Services
     {
         private readonly WrocRideDbContext _dbContext;
         private readonly IUserContextService _userContext;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public RideService(WrocRideDbContext dbContext, IUserContextService userContext)
+        public RideService(WrocRideDbContext dbContext, IUserContextService userContext, IHubContext<NotificationHub> hubContext)
         {
             _dbContext = dbContext;
             _userContext = userContext;
+            _hubContext = hubContext;
         }
 
         public int CreateRide(CreateRideDto dto)

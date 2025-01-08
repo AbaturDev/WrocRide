@@ -61,6 +61,7 @@ builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddHostedService<ScheduleRideGeneratorService>();
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
@@ -103,6 +104,8 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseAuthentication();
 
 app.UseHttpsRedirection();
+
+app.MapHub<NotificationHub>("notification-hub");
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>

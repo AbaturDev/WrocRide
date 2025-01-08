@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using Microsoft.EntityFrameworkCore;
 using WrocRide.Entities;
 
 namespace WrocRide.Seeders
@@ -7,7 +8,7 @@ namespace WrocRide.Seeders
     {
         public static void Seed(WrocRideDbContext dbContext)
         {
-            if(dbContext.Ratings.Any())
+            if (dbContext.Ratings.Any())
             {
                 return;
             }
@@ -22,7 +23,7 @@ namespace WrocRide.Seeders
 
             var ratings = new List<Rating>();
 
-            foreach(var ride in sampleEndedRides)
+            foreach (var ride in sampleEndedRides)
             {
                 var rating = faker.Generate();
 
@@ -42,6 +43,20 @@ namespace WrocRide.Seeders
             }
 
             dbContext.Ratings.AddRange(ratings);
+            dbContext.SaveChanges();
+
+            var drivers = dbContext.Drivers.ToList();
+
+            foreach (var driver in drivers)
+            {
+                var driverGrade = dbContext.Rides
+                    .Include(r => r.Rating)
+                    .Where(r => r.DriverId == driver.Id && r.Rating != null)
+                    .Average(r => r.Rating.Grade);
+
+                driver.Rating = (float)driverGrade;
+            }
+
             dbContext.SaveChanges();
         }
     }
