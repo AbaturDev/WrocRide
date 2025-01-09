@@ -46,7 +46,8 @@ namespace WrocRide.Services
                 PhoneNumber = user.PhoneNumber,
                 JoinAt = user.JoinAt,
                 Balance = user.Balance,
-                Role = user.Role.Name
+                Role = user.Role.Name,
+                IsActive = user.IsActive,
             };
 
             return result;
