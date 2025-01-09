@@ -111,10 +111,10 @@ namespace WrocRide.Services
                 _dbContext.SaveChanges();
                 dbContextTransaction.Commit();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 dbContextTransaction.Rollback();
-                throw new Exception();
+                throw ex;
             }       
         }
 
@@ -181,7 +181,7 @@ namespace WrocRide.Services
 
             if (user == null)
             {
-                throw new NotFoundException("Document not found");
+                throw new NotFoundException("User not found");
             }
 
             if (!string.IsNullOrEmpty(dto.Name))
@@ -289,10 +289,10 @@ namespace WrocRide.Services
                 _dbContext.SaveChanges();
                 dbContextTransaction.Commit();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 dbContextTransaction.Rollback();
-                throw new Exception();
+                throw ex;
             }
 
 
