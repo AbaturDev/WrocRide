@@ -11,17 +11,19 @@ namespace WrocRide.Services
     {
         PagedList<DriverDto> GetAll(DriverQuery query);
         DriverDto GetById(int id);
-        void UpdatePricing(int id, UpdateDriverPricingDto dto);
-        void UpdateStatus(int id, UpdateDriverStatusDto dto);
+        void UpdatePricing(UpdateDriverPricingDto dto);
+        void UpdateStatus(UpdateDriverStatusDto dto);
         PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query);
     }
 
     public class DriverService : IDriverService
     {
         private readonly WrocRideDbContext _dbContext;
-        public DriverService(WrocRideDbContext dbContext)
+        private readonly IUserContextService _userContext;
+        public DriverService(WrocRideDbContext dbContext, IUserContextService userContext)
         {
             _dbContext = dbContext;
+            _userContext = userContext;
         }
 
         public PagedList<DriverDto> GetAll(DriverQuery query)
@@ -77,26 +79,30 @@ namespace WrocRide.Services
             return result;
         }
 
-        public void UpdatePricing(int id, UpdateDriverPricingDto dto)
+        public void UpdatePricing(UpdateDriverPricingDto dto)
         {
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
+            var userId = _userContext.GetUserId;
+
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
             
             if(driver == null)
             {
-                throw new NotFoundException("Driver not found");
+                throw new BadRequestException("User is not a driver");
             }
 
             driver.Pricing = dto.Pricing;
             _dbContext.SaveChanges();
         }
 
-        public void UpdateStatus(int id, UpdateDriverStatusDto dto)
+        public void UpdateStatus(UpdateDriverStatusDto dto)
         {
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
-            
-            if(driver == null)
+            var userId = _userContext.GetUserId;
+
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
+
+            if (driver == null)
             {
-                throw new NotFoundException("Driver not found");
+                throw new BadRequestException("User is not a driver");
             }
 
             driver.DriverStatus = dto.DriverStatus;

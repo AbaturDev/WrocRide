@@ -84,10 +84,6 @@ namespace WrocRide.Services
 
                 if (dto.DocumentStatus == Models.Enums.DocumentStatus.Accepted)
                 {
-                    var status = new UpdateDriverStatusDto
-                    {
-                        DriverStatus = Models.Enums.DriverStatus.Offline
-                    };
                     var driver = _dbContext.Drivers.FirstOrDefault(d => d.DocumentId == id);
 
                     if (driver == null)
@@ -95,8 +91,7 @@ namespace WrocRide.Services
                         throw new NotFoundException("Driver not found");
                     }
 
-                    var driverId = driver.Id;
-                    _driverService.UpdateStatus(driverId, status);
+                    driver.DriverStatus = Models.Enums.DriverStatus.Offline;
 
                     var userDriver = _dbContext.Users.FirstOrDefault(u => u.Id == driver.UserId);
                     

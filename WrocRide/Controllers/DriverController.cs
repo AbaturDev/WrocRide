@@ -35,18 +35,18 @@ namespace WrocRide.Controllers
             return Ok(result);
         }
 
-        [HttpPut("{id}/pricing")]
-        public ActionResult UpdatePricing([FromRoute] int id, [FromBody] UpdateDriverPricingDto dto)
+        [HttpPut("pricing")]
+        public ActionResult UpdatePricing([FromBody] UpdateDriverPricingDto dto)
         {
-            _driverService.UpdatePricing(id, dto);
+            _driverService.UpdatePricing(dto);
 
             return Ok();
         }
 
-        [HttpPut("{id}/status")]
-        public ActionResult UpdateStatus([FromRoute] int id, [FromBody] UpdateDriverStatusDto dto)
+        [HttpPut("status")]
+        public ActionResult UpdateStatus([FromBody] UpdateDriverStatusDto dto)
         {
-            _driverService.UpdateStatus(id, dto);
+            _driverService.UpdateStatus(dto);
 
             return Ok();
         }

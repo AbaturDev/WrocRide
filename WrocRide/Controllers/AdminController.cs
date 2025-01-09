@@ -26,7 +26,7 @@ namespace WrocRide.Controllers
             return Ok(result);
         }
 
-        [HttpPut("documents/{id}")]
+        [HttpPut("document/{id}")]
         public ActionResult UpdateDocument([FromRoute] int id, [FromBody] UpdateDocumentDto dto)
         {
             _adminService.UpdateDocument(id, dto);
@@ -34,7 +34,7 @@ namespace WrocRide.Controllers
             return Ok();
         }
 
-        [HttpGet("documents/{driverId}")]
+        [HttpGet("document/{driverId}")]
         public ActionResult<DocumentDto> GetDocumentByDriverId([FromRoute] int driverId)
         {
             var result = _adminService.GetDocumentByDriverId(driverId);
@@ -50,7 +50,7 @@ namespace WrocRide.Controllers
             return Ok(result);
         }
 
-        [HttpPut("users/{userId}")]
+        [HttpPut("user/{userId}")]
         public ActionResult UpdateUser([FromRoute] int userId, [FromBody] UpdateUserDto dto)
         {
             _adminService.UpdateUser(userId, dto);
@@ -66,7 +66,7 @@ namespace WrocRide.Controllers
             return Ok(result);
         }
 
-        [HttpPut("reports/{id}")]
+        [HttpPut("report/{id}")]
         public ActionResult UpdateReport([FromRoute] int id, [FromBody] UpdateReportDto dto)
         {
             _adminService.UpdateReport(id, dto);

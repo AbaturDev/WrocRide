@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using System.Text.RegularExpressions;
 using WrocRide.Entities;
 
 namespace WrocRide.Models.Validators
@@ -16,7 +17,8 @@ namespace WrocRide.Models.Validators
                 .MaximumLength(25);
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty();
+                .NotEmpty()
+                .Matches(new Regex(@"^\d{9}$")).WithMessage("PhoneNumber not valid");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
@@ -57,7 +59,7 @@ namespace WrocRide.Models.Validators
 
             RuleFor(x => x.YearProduced)
                 .NotEmpty()
-                .GreaterThan(2000);
+                .InclusiveBetween(2000, DateTime.Now.Year);
 
             RuleFor(x => x.Pricing)
                  .NotEmpty()

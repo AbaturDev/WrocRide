@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using System.Text.RegularExpressions;
 using WrocRide.Entities;
 
 namespace WrocRide.Models.Validators
@@ -17,8 +18,9 @@ namespace WrocRide.Models.Validators
                 .MaximumLength(25);
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty();
-                
+                .NotEmpty()
+                .Matches(new Regex(@"^\d{9}$")).WithMessage("PhoneNumber not valid");
+
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .EmailAddress();

@@ -161,12 +161,19 @@ namespace WrocRide.Services
                 throw new NotFoundException("Driver not found");
             }
 
-            var averageRating = _dbContext.Rides
+            var driverRatings = _dbContext.Rides
                 .Include(r => r.Rating)
-                .Where(r => r.DriverId == driverId && r.Rating != null)
-                .Average(r => r.Rating.Grade);
+                .Where(r => r.DriverId == driverId && r.Rating != null);
 
-            driver.Rating = (float)averageRating;
+            if (driverRatings == null)
+            {
+                driver.Rating = null;
+            }
+            else
+            {
+                driver.Rating = (float)driverRatings.Average(r => r.Rating.Grade);
+            }
+
             _dbContext.SaveChanges();
         }
     }
