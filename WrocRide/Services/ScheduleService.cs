@@ -18,11 +18,13 @@ public class ScheduleService : IScheduleService
 {
     private readonly WrocRideDbContext _dbContext;
     private readonly IUserContextService _userContext;
-    
-    public ScheduleService(WrocRideDbContext dbContext, IUserContextService userContext)
+    private readonly ILogger<ScheduleService> _logger;
+
+    public ScheduleService(WrocRideDbContext dbContext, IUserContextService userContext, ILogger<ScheduleService> logger)
     {
         _dbContext = dbContext;
         _userContext = userContext;
+        _logger = logger;
     }
 
     public int CreateSchedule(CreateScheduleDto dto)
@@ -144,50 +146,63 @@ public class ScheduleService : IScheduleService
 
         foreach (var schedule in schedules)
         {
-            var rideAlreadyExist = _dbContext.Rides
-                .Any(r => r.StartDate.Date == DateTime.Today.Date
-                          && r.StartDate.TimeOfDay == schedule.StartTime
-                          && r.ClientId == schedule.ClientId
-                          && r.RideStatus != RideStatus.Canceled);
+            _logger.LogInformation($"Proccessing schedule ID {schedule.Id}");
 
-            if (rideAlreadyExist)
+            try
             {
-                //signalR
-                continue;
-            }
-            
-            if (schedule.Client.User.Balance < schedule.BudgetPerRide)
-            {
-                //signalR
-                continue;
-            }
-            
-            var driver = _dbContext.Drivers
-                .Where(d => d.DriverStatus == DriverStatus.Available
-                                     && d.Pricing * schedule.Distance <= schedule.BudgetPerRide)
-                .OrderBy(d => d.Rating)
-                .FirstOrDefault();
-            
-            if (driver == null)
-            {
-                //signalR
-                continue;
-            }
-            
-            var ride = new Ride()
-            {
-                StartDate = DateTime.Today + schedule.StartTime,
-                PickUpLocation = schedule.PickUpLocation,
-                Destination = schedule.Destination,
-                DriverId = driver.Id,
-                ClientId = schedule.ClientId,
-                RideStatus = RideStatus.Pending,
-                Distance = schedule.Distance,
-                Coast = driver.Pricing * schedule.Distance
-            };
+                var rideAlreadyExist = _dbContext.Rides
+                    .Any(r => r.StartDate.Date == DateTime.Today.Date
+                              && r.StartDate.TimeOfDay == schedule.StartTime
+                              && r.ClientId == schedule.ClientId
+                              && r.RideStatus != RideStatus.Canceled);
 
-            _dbContext.Rides.Add(ride);
-            _dbContext.SaveChanges();
+                if (rideAlreadyExist)
+                {
+                    _logger.LogWarning($"Todays ride already exist for schedule ID {schedule.Id}");
+                    //signalR
+                    continue;
+                }
+
+                if (schedule.Client.User.Balance < schedule.BudgetPerRide)
+                {
+                    _logger.LogWarning($"Client Id {schedule.ClientId} does not have enoguh money for schedule Id {schedule.Id} ride creation");
+                    //signalR
+                    continue;
+                }
+
+                var driver = _dbContext.Drivers
+                    .Where(d => d.DriverStatus == DriverStatus.Available
+                                         && d.Pricing * schedule.Distance <= schedule.BudgetPerRide)
+                    .OrderBy(d => d.Rating)
+                    .FirstOrDefault();
+
+                if (driver == null)
+                {
+                    _logger.LogWarning($"No avaliable driver found for schedule Id {schedule.Id}");
+                    //signalR
+                    continue;
+                }
+
+                var ride = new Ride()
+                {
+                    StartDate = DateTime.Today + schedule.StartTime,
+                    PickUpLocation = schedule.PickUpLocation,
+                    Destination = schedule.Destination,
+                    DriverId = driver.Id,
+                    ClientId = schedule.ClientId,
+                    RideStatus = RideStatus.Pending,
+                    Distance = schedule.Distance,
+                    Coast = driver.Pricing * schedule.Distance
+                };
+
+                _dbContext.Rides.Add(ride);
+                _dbContext.SaveChanges();
+                _logger.LogInformation($"Succesfully created todays ride id {ride.Id} for schedule Id {schedule.Id}");
+            }
+            catch(Exception)
+            {
+                throw;
+            }
         }
     }
 }

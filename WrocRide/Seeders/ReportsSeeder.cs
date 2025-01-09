@@ -23,7 +23,7 @@ namespace WrocRide.Seeders
 
             var faker = new Faker<Report>("pl")
                 .RuleFor(r => r.Reason, f => f.Lorem.Sentence(40))
-                .RuleFor(r => r.ReportStatus, f => f.PickRandom<ReportStatus>())
+                .RuleFor(r => r.ReportStatus, f => f.PickRandomWithout<ReportStatus>(ReportStatus.Accepted))
                 .RuleFor(r => r.AdminId, f => f.PickRandom(sampleAdmins).Id);
 
 
@@ -32,7 +32,6 @@ namespace WrocRide.Seeders
             foreach(var ride in sampleRides)
             {
                 var report = faker.Generate();
-
 
                 if (ride.EndDate.HasValue)
                 {
@@ -56,6 +55,11 @@ namespace WrocRide.Seeders
                 {
                     report.ReporterUserId = ride.Driver.UserId;
                     report.ReportedUserId = ride.Client.UserId;
+                }
+
+                if(report.ReportStatus == ReportStatus.Pending)
+                {
+                    report.AdminId = null;
                 }
 
                 reports.Add(report);

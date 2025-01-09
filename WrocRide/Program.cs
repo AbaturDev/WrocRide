@@ -14,10 +14,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using WrocRide.Authorization;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtAuthentication>();
+
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add services to the container.
 
@@ -65,6 +69,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<RequestLoggingMiddleware>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
@@ -99,7 +104,10 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseSerilogRequestLogging();
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseAuthentication();
 
