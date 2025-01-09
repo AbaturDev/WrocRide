@@ -14,26 +14,34 @@ namespace WrocRide.Services
     public class CarService : ICarService
     {
         private readonly WrocRideDbContext _dbContext;
-
-        public CarService(WrocRideDbContext dbContext)
+        private readonly IUserContextService _userContextService;
+        public CarService(WrocRideDbContext dbContext, IUserContextService user)
         {
             _dbContext = dbContext;
+            _userContextService = user;
         }
 
         public void UpdateCar(int driverId, int carId, UpdateCarDto dto)
         {
+            var userId = _userContextService.GetUserId;
+
             var driver = _dbContext.Drivers
                 .Include(d => d.Car)
                 .FirstOrDefault(d => d.Id == driverId);
 
             if (driver == null)
             {
-                throw new NotFoundException("Driver not found");
+                throw new NotFoundException("Driver not found.");
+            }
+
+            if (driver.UserId != userId)
+            {
+                throw new BadRequestException("User is not a driver");
             }
 
             if (driver.CarId != carId)
             {
-                throw new NotFoundException("Car not found");
+                throw new ForbidException("Driver is not the car owner.");
             }
 
             if (!string.IsNullOrEmpty(dto.Model))
