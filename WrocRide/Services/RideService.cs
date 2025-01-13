@@ -196,7 +196,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, rides.Count);
+            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, baseQuery.Count());
 
             return result;
         }

@@ -53,7 +53,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, documents.Count);
+            var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, baseQuery.Count());
 
             return result;
         }
@@ -165,7 +165,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, users.Count);
+            var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, baseQuery.Count());
 
             return result;
         }
@@ -243,7 +243,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, reports.Count);
+            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, baseQuery.Count());
 
             return result;
         }

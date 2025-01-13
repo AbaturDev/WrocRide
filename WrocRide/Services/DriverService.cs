@@ -50,7 +50,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, drivers.Count());
+            var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, baseQuery.Count());
             
             return result;
         }
@@ -127,10 +127,9 @@ namespace WrocRide.Services
                     .ThenInclude(r => r.User)
                 .Include(r => r.Client)
                     .ThenInclude(r => r.User)
-                .Where(r => r.DriverId == driver.Id);
-
+                .Where(r => r.DriverId == driver.Id && r.Rating != null);
+            
             var ratings = rides
-                .Where(r => r.Rating != null)
                 .Select(r => new RatingDto()
                 {
                     Grade = r.Rating.Grade,
@@ -145,7 +144,7 @@ namespace WrocRide.Services
                 .Take(query.PageSize)
                 .ToList();
 
-            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, ratings.Count);
+            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, rides.Count());
          
             return result;
         }
