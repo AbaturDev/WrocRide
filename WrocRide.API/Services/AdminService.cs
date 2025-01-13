@@ -1,0 +1,288 @@
+﻿namespace WrocRide.API.Services
+{
+    public interface IAdminService
+    {
+        PagedList<DocumentDto> GetDocuments(DocumentQuery query);
+        void UpdateDocument(int id, UpdateDocumentDto dto);
+        DocumentDto GetDocumentByDriverId(int id);
+        PagedList<UserDto> GetAll(UserQuery query);
+        void UpdateUser(int id, UpdateUserDto dto);
+        PagedList<ReportDto> GetReports(ReportQuery query);
+        void UpdateReport(int id, UpdateReportDto dto);
+    }
+    public class AdminService : IAdminService
+    {
+        private readonly WrocRideDbContext _dbContext;
+        private readonly IUserContextService _userContextService;
+        private readonly IDriverService _driverService;
+        private readonly IPasswordHasher<User> _passwordHasher;
+        public AdminService(WrocRideDbContext dbContext, IUserContextService userContextService, IDriverService driverService, IPasswordHasher<User> passwordHasher)
+        {
+            _dbContext = dbContext;
+            _userContextService = userContextService;
+            _driverService = driverService;
+            _passwordHasher = passwordHasher;
+        }
+
+        public PagedList<DocumentDto> GetDocuments(DocumentQuery query)
+        {
+            IQueryable<Document> baseQuery = _dbContext.Documents;
+
+            if (query.DocumentStatus != null)
+            {
+                baseQuery = baseQuery.Where(d => d.DocumentStatus == query.DocumentStatus);
+            }
+
+            var documents = baseQuery
+                .Select(d => new DocumentDto()
+                {
+                    Id = d.Id,
+                    DocumentStatus = d.DocumentStatus,
+                    FileLocation = d.FileLocation,
+                    RequestDate = d.RequestDate
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, baseQuery.Count());
+
+            return result;
+        }
+
+        public void UpdateDocument(int id, UpdateDocumentDto dto)
+        {
+            var userId = _userContextService.GetUserId;
+            var admin = _dbContext.Admins.FirstOrDefault(u => u.UserId == userId);
+
+            if (admin == null)
+            {
+                throw new NotFoundException("Admin not found");
+            }
+
+            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var document = _dbContext.Documents.FirstOrDefault(d => d.Id == id);
+
+                if (document == null)
+                {
+                    throw new NotFoundException("Document not found");
+                }
+
+                document.DocumentStatus = dto.DocumentStatus;
+                document.ExaminationDate = DateTime.UtcNow;
+                document.AdminId = admin.Id;
+
+                if (dto.DocumentStatus == DocumentStatus.Accepted)
+                {
+                    var driver = _dbContext.Drivers.FirstOrDefault(d => d.DocumentId == id);
+
+                    if (driver == null)
+                    {
+                        throw new NotFoundException("Driver not found");
+                    }
+
+                    driver.DriverStatus = DriverStatus.Offline;
+
+                    var userDriver = _dbContext.Users.FirstOrDefault(u => u.Id == driver.UserId);
+                    
+                    if (userDriver == null)
+                    {
+                        throw new NotFoundException("User not found");
+                    }
+
+                    userDriver.IsActive = true;
+                }
+
+                _dbContext.SaveChanges();
+                dbContextTransaction.Commit();
+            }
+            catch (Exception)
+            {
+                dbContextTransaction.Rollback();
+                throw;
+            }       
+        }
+
+        public DocumentDto GetDocumentByDriverId(int id)
+        {
+            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
+
+            if (driver == null)
+            {
+                throw new NotFoundException("Driver not found");
+            }
+
+            var document = _dbContext.Documents.FirstOrDefault(doc => doc.Id == driver.DocumentId);
+
+            if (document == null)
+            {
+                throw new NotFoundException("Document not found");
+            }
+
+            var result = new DocumentDto()
+            {
+                Id = document.Id,
+                DocumentStatus = document.DocumentStatus,
+                FileLocation = document.FileLocation,
+                RequestDate = document.RequestDate
+            };
+
+            return result;
+        }
+        public PagedList<UserDto> GetAll(UserQuery query)
+        {
+            IQueryable<User> baseQuery = _dbContext.Users;
+
+            if (query.RoleId != null)
+            {
+                baseQuery = baseQuery.Where(u => u.RoleId == query.RoleId);
+            }
+
+            var users = baseQuery
+                .Select(u => new UserDto()
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surename = u.Surename,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    JoinAt = u.JoinAt,
+                    RoleId = u.RoleId,
+                    IsActive = u.IsActive,
+                    Balance = u.Balance
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, baseQuery.Count());
+
+            return result;
+        }
+
+        public void UpdateUser(int id, UpdateUserDto dto)
+        {
+            var user = _dbContext.Users.FirstOrDefault(d => d.Id == id);
+
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                user.Name = dto.Name;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Surename))
+            {
+                user.Surename = dto.Surename;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Email))
+            {
+                user.Email = dto.Email;
+            }
+
+            if (!string.IsNullOrEmpty(dto.PhoneNumber))
+            {
+                user.PhoneNumber = dto.PhoneNumber;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                var hashedPassword = _passwordHasher.HashPassword(user, dto.Password);
+                user.PasswordHash = hashedPassword;
+            }
+
+            if (dto.IsActive.HasValue)
+            {
+                user.IsActive = (bool)dto.IsActive;
+            }
+
+            _dbContext.SaveChanges();
+        }
+
+        public PagedList<ReportDto> GetReports(ReportQuery query)
+        {
+            IQueryable<Report> baseQuery = _dbContext.Reports;
+
+            if (query.ReportStatus != null)
+            {
+                baseQuery = baseQuery.Where(r => r.ReportStatus == query.ReportStatus);
+            }
+
+            if (query.ReportedId != null)
+            {
+                baseQuery = baseQuery.Where(r => r.ReportedUserId == query.ReportedId);
+            }
+
+            var reports = baseQuery
+                .Select(r => new ReportDto()
+                {
+                    Id = r.Id,
+                    CreatedAt = r.CreatedAt,
+                    ReportStatus = r.ReportStatus,
+                    Reason = r.Reason,
+                    ReporterUserId = r.ReporterUserId,
+                    ReportedUserId = r.ReportedUserId,
+                    RideId = r.RideId,
+                    AdminId = r.AdminId
+                })
+                .Skip(query.PageSize * (query.PageNumber - 1))
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, baseQuery.Count());
+
+            return result;
+        }
+
+        public void UpdateReport(int id, UpdateReportDto dto)
+        {
+            var userId = _userContextService.GetUserId;
+            var admin = _dbContext.Admins.FirstOrDefault(u => u.UserId == userId);
+
+            if (admin == null)
+            {
+                throw new ForbidException("User is not an admin.");
+            }
+
+            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            try
+            {
+                var report = _dbContext.Reports.FirstOrDefault(r => r.Id == id);
+
+                if (report == null)
+                {
+                    throw new NotFoundException("Report not found");
+                }
+
+                report.ReportStatus = dto.ReportStatus;
+                report.AdminId = admin.Id;
+
+                if (dto.ReportStatus == ReportStatus.Accepted)
+                {
+                    var status = new UpdateUserDto
+                    {
+                        IsActive = false
+                    };
+
+                    UpdateUser(report.ReportedUserId, status);
+                }
+
+                _dbContext.SaveChanges();
+                dbContextTransaction.Commit();
+            }
+            catch (Exception)
+            {
+                dbContextTransaction.Rollback();
+                throw;
+            }
+
+
+        }
+    }
+}
