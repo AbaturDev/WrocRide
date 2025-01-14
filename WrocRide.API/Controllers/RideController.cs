@@ -15,66 +15,66 @@ namespace WrocRide.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Client")]
-        public ActionResult CreateRide([FromBody] CreateRideDto dto)
+        public async Task<ActionResult> CreateRide([FromBody] CreateRideDto dto)
         {
-            int id = _rideService.CreateRide(dto);
+            int id = await _rideService.CreateRide(dto);
 
             return Created($"api/ride/{id}", null);
         }
 
         [HttpPost("reservation")]
         [Authorize(Roles = "Client")]
-        public ActionResult CreateRideReservation([FromBody] CreateRideReservationDto dto)
+        public async Task<ActionResult> CreateRideReservation([FromBody] CreateRideReservationDto dto)
         {
-            int id = _rideService.CreateRideReservation(dto);
+            int id = await _rideService.CreateRideReservation(dto);
 
             return Created($"api/ride/{id}", null);
         }
 
         [HttpGet]
-        public ActionResult<PagedList<RideDto>> GetAllRides([FromQuery] RideQuery query)
+        public async Task<ActionResult<PagedList<RideDto>>> GetAllRides([FromQuery] RideQuery query)
         {
-            var result = _rideService.GetAll(query);
+            var result = await _rideService.GetAll(query);
 
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<RideDeatailsDto> GetRideById([FromRoute] int id)
+        public async Task<ActionResult<RideDeatailsDto>> GetRideById([FromRoute] int id)
         {
-            var result = _rideService.GetById(id);
+            var result = await _rideService.GetById(id);
 
             return Ok(result);
         }
 
         [HttpPut("{id}/ride-status")]
-        public ActionResult UpdateRideStatus([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
+        public async Task<ActionResult> UpdateRideStatus([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
         {
-            _rideService.UpdateRideStatus(id, dto);
+            await _rideService.UpdateRideStatus(id, dto);
 
             return Ok();
         }
 
         [HttpPut("{id}/driver-decision")]
-        public ActionResult DriverDecision([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
+        public async Task<ActionResult> DriverDecision([FromRoute] int id, [FromBody] UpdateRideStatusDto dto)
         {
-            _rideService.DriverDecision(id, dto);
+            await _rideService.DriverDecision(id, dto);
 
             return Ok();
         }
 
         [HttpPut("{id}/cancel-ride")]
-        public ActionResult CancelRide([FromRoute] int id)
+        public async Task<ActionResult> CancelRide([FromRoute] int id)
         {
-            _rideService.CancelRide(id);
+            await _rideService.CancelRide(id);
 
             return Ok();
         }
 
         [HttpPut("{id}/end-ride")]
-        public ActionResult EndRide([FromRoute] int id)
+        public async Task<ActionResult> EndRide([FromRoute] int id)
         {
-            _rideService.EndRide(id);
+            await _rideService.EndRide(id);
 
             return Ok();
         }

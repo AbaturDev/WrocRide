@@ -2,10 +2,10 @@ namespace WrocRide.API.Services
 {
     public interface IUserService
     {
-        UserDto GetUser();
-        void UpdateUser(UpdateUserDto dto);
-        void AddCredits(AddCreditsDto dto);
-        void DeactivateAccount();
+        Task<UserDto> GetUser();
+        Task UpdateUser(UpdateUserDto dto);
+        Task AddCredits(AddCreditsDto dto);
+        Task DeactivateAccount();
     }
     public class UserService : IUserService
     {
@@ -19,13 +19,13 @@ namespace WrocRide.API.Services
             _passwordHasher = passwordHasher;
         }
 
-        public UserDto GetUser()
+        public async Task<UserDto> GetUser()
         {
             var userId = _userContextService.GetUserId;
 
-            var user = _dbContext.Users
+            var user = await _dbContext.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Id == userId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
             if(user == null)
             {
@@ -47,11 +47,11 @@ namespace WrocRide.API.Services
             return result;
         }
 
-        public void UpdateUser(UpdateUserDto dto)
+        public async Task UpdateUser(UpdateUserDto dto)
         {
             var userId = _userContextService.GetUserId;
 
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
             {
@@ -84,14 +84,14 @@ namespace WrocRide.API.Services
                 user.PasswordHash = hashedPassword;
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void AddCredits(AddCreditsDto dto)
+        public async Task AddCredits(AddCreditsDto dto)
         {
             var userId = _userContextService.GetUserId;
             
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
             
             if (user == null)
             {
@@ -100,21 +100,21 @@ namespace WrocRide.API.Services
 
             user.Balance += dto.Credits;
             
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DeactivateAccount()
+        public async Task DeactivateAccount()
         {
             var userId = _userContextService.GetUserId;
 
-            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
                 throw new NotFoundException("User not found");
             }
 
             user.IsActive = false;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

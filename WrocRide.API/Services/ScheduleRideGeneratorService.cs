@@ -21,7 +21,7 @@ public class ScheduleRideGeneratorService : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var scheduleService = scope.ServiceProvider.GetRequiredService<IScheduleService>();
 
-            scheduleService.GenerateRidesFromSchedules();
+            await scheduleService.GenerateRidesFromSchedules();
 
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }

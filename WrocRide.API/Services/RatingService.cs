@@ -3,10 +3,10 @@ namespace WrocRide.API.Services
 {
     public interface IRatingService
     {
-        int CreateRating(int rideId, CreateRatingDto dto);
-        RatingDto Get(int rideId);
-        void Update(int rideId, CreateRatingDto dto);
-        void Delete(int rideId);
+        Task<int> CreateRating(int rideId, CreateRatingDto dto);
+        Task<RatingDto> Get(int rideId);
+        Task Update(int rideId, CreateRatingDto dto);
+        Task Delete(int rideId);
     }
 
     public class RatingService : IRatingService
@@ -19,16 +19,16 @@ namespace WrocRide.API.Services
             _userContext = userContext;
         }
 
-        public int CreateRating(int rideId, CreateRatingDto dto)
+        public async Task<int> CreateRating(int rideId, CreateRatingDto dto)
         {
-            var ride = GetCurrentClientRide(rideId);
+            var ride = await GetCurrentClientRide(rideId);
 
             if(ride.Rating != null)
             {
                 throw new BadRequestException("Ride already have an rating");
             }
 
-            var raiting = new Rating()
+            var rating = new Rating()
             {
                 CreatedAt = DateTime.Now,
                 Grade = dto.Grade,
@@ -37,17 +37,17 @@ namespace WrocRide.API.Services
                 CreatedByClientId = ride.ClientId
             };
 
-            _dbContext.Ratings.Add(raiting);
-            _dbContext.SaveChanges();
+            await _dbContext.Ratings.AddAsync(rating);
+            await _dbContext.SaveChangesAsync();
 
-            UpdateDriverAverageRating(ride.DriverId);
+            await UpdateDriverAverageRating(ride.DriverId);
 
-            return raiting.Id;
+            return rating.Id;
         }
 
-        public void Update(int rideId, CreateRatingDto dto)
+        public async Task Update(int rideId, CreateRatingDto dto)
         {
-            var ride = GetCurrentClientRide(rideId);
+            var ride = await GetCurrentClientRide(rideId);
 
             if(ride.Rating == null)
             {
@@ -62,14 +62,14 @@ namespace WrocRide.API.Services
             ride.Rating.Grade = dto.Grade;
             ride.Rating.Comment = dto.Comment;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            UpdateDriverAverageRating(ride.DriverId);
+            await UpdateDriverAverageRating(ride.DriverId);
         }
 
-        public void Delete(int rideId)
+        public async Task Delete(int rideId)
         {
-            var ride = GetCurrentClientRide(rideId);
+            var ride = await GetCurrentClientRide(rideId);
 
             if(ride.Rating == null)
             {
@@ -82,20 +82,20 @@ namespace WrocRide.API.Services
             }
 
             _dbContext.Ratings.Remove(ride.Rating);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
-            UpdateDriverAverageRating(ride.DriverId);
+            await UpdateDriverAverageRating(ride.DriverId);
         }
 
-        public RatingDto Get(int rideId)
+        public async Task<RatingDto> Get(int rideId)
         {
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Rating)
                 .Include(r => r.Driver)
                     .ThenInclude(r => r.User)
                 .Include(r => r.Client)
                     .ThenInclude(r => r.User)
-                .FirstOrDefault(r => r.Id == rideId && r.RideStatus == RideStatus.Ended);
+                .FirstOrDefaultAsync(r => r.Id == rideId && r.RideStatus == RideStatus.Ended);
 
             if (ride == null)
             {
@@ -121,22 +121,22 @@ namespace WrocRide.API.Services
             return result;
         }
 
-        private Ride GetCurrentClientRide(int rideId)
+        private async Task<Ride> GetCurrentClientRide(int rideId)
         {
             var userId = _userContext.GetUserId;
 
-            var client = _dbContext.Clients
+            var client = await _dbContext.Clients
                 .Include(c => c.User)
-                .FirstOrDefault(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (client == null)
             {
                 throw new BadRequestException("User is not a client");
             }
 
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Rating)
-                .FirstOrDefault(r => r.ClientId == client.Id && r.Id == rideId && r.RideStatus == RideStatus.Ended);
+                .FirstOrDefaultAsync(r => r.ClientId == client.Id && r.Id == rideId && r.RideStatus == RideStatus.Ended);
 
             if (ride == null)
             {
@@ -146,10 +146,10 @@ namespace WrocRide.API.Services
             return ride;
         }
 
-        private void UpdateDriverAverageRating(int driverId)
+        private async Task UpdateDriverAverageRating(int driverId)
         {
-            var driver = _dbContext.Drivers
-                .FirstOrDefault(r => r.Id == driverId);
+            var driver = await _dbContext.Drivers
+                .FirstOrDefaultAsync(r => r.Id == driverId);
 
             if(driver == null)
             {
@@ -160,16 +160,16 @@ namespace WrocRide.API.Services
                 .Include(r => r.Rating)
                 .Where(r => r.DriverId == driverId && r.Rating != null);
 
-            if (driverRatings == null)
+            if (!await driverRatings.AnyAsync())
             {
                 driver.Rating = null;
             }
             else
             {
-                driver.Rating = (float)driverRatings.Average(r => r.Rating.Grade);
+                driver.Rating = (float)await driverRatings.AverageAsync(r => r.Rating.Grade);
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

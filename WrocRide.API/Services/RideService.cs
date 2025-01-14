@@ -4,14 +4,14 @@ namespace WrocRide.API.Services
 {
     public interface IRideService
     {
-        int CreateRide(CreateRideDto dto);
-        int CreateRideReservation(CreateRideReservationDto dto);
-        PagedList<RideDto> GetAll(RideQuery query);
-        RideDeatailsDto GetById(int id);
-        void UpdateRideStatus(int id, UpdateRideStatusDto dto);
-        void DriverDecision(int id, UpdateRideStatusDto dto);
-        void CancelRide(int id);
-        void EndRide(int id);
+        Task<int> CreateRide(CreateRideDto dto);
+        Task<int> CreateRideReservation(CreateRideReservationDto dto);
+        Task<PagedList<RideDto>> GetAll(RideQuery query);
+        Task<RideDeatailsDto> GetById(int id);
+        Task UpdateRideStatus(int id, UpdateRideStatusDto dto);
+        Task DriverDecision(int id, UpdateRideStatusDto dto);
+        Task CancelRide(int id);
+        Task EndRide(int id);
     }
     public class RideService : IRideService
     {
@@ -26,10 +26,10 @@ namespace WrocRide.API.Services
             _hubContext = hubContext;
         }
 
-        public int CreateRide(CreateRideDto dto)
+        public async Task<int> CreateRide(CreateRideDto dto)
         {
-            var driver = _dbContext.Drivers
-                .FirstOrDefault(d => d.Id == dto.DriverId
+            var driver = await _dbContext.Drivers
+                .FirstOrDefaultAsync(d => d.Id == dto.DriverId
                 && d.DriverStatus == DriverStatus.Available);
             
             if (driver == null)
@@ -39,9 +39,9 @@ namespace WrocRide.API.Services
 
             var userId = _userContext.GetUserId;
 
-            var client = _dbContext.Clients
+            var client = await _dbContext.Clients
                 .Include(c => c.User)
-                .FirstOrDefault(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (client == null)
             {
@@ -66,15 +66,15 @@ namespace WrocRide.API.Services
                 throw new BadRequestException("Client does not have enough money for the ride");
             }
 
-            _dbContext.Rides.Add(ride);
-            _dbContext.SaveChanges();
+            await _dbContext.Rides.AddAsync(ride);
+            await _dbContext.SaveChangesAsync();
 
             return ride.Id;
         }
 
-        public int CreateRideReservation(CreateRideReservationDto dto)
+        public async Task<int> CreateRideReservation(CreateRideReservationDto dto)
         {
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == dto.DriverId);
+            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.Id == dto.DriverId);
             if (driver == null)
             {
                 throw new NotFoundException("Driver not found");
@@ -82,18 +82,18 @@ namespace WrocRide.API.Services
 
             var userId = _userContext.GetUserId;
 
-            var client = _dbContext.Clients
+            var client = await _dbContext.Clients
                 .Include(c => c.User)
-                .FirstOrDefault(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (client == null)
             {
                 throw new BadRequestException("This user is not a client. Failed request for a ride");
             }
             
-            var hasReservation = _dbContext.Rides
+            var hasReservation = await _dbContext.Rides
                 .Where(r => r.ClientId == client.Id)
-                .Any(r => r.StartDate <= dto.StartDate && 
+                .AnyAsync(r => r.StartDate <= dto.StartDate && 
                           (r.EndDate == null || r.EndDate >= dto.StartDate));
 
             if (hasReservation)
@@ -101,12 +101,12 @@ namespace WrocRide.API.Services
                 throw new BadRequestException("Client already has a reservation at requested time");
             }
             
-            var conflictingRides = _dbContext.Rides
+            var conflictingRides = await _dbContext.Rides
                 .Where(r => r.DriverId == driver.Id)
                 .Where(r => r.RideStatus == RideStatus.Accepted || 
                             r.RideStatus == RideStatus.Ongoing || 
                             r.RideStatus == RideStatus.Reserved)
-                .Any(r => r.StartDate <= dto.StartDate &&
+                .AnyAsync(r => r.StartDate <= dto.StartDate &&
                           (r.EndDate == null || r.EndDate >= dto.StartDate));
 
             if (conflictingRides)
@@ -132,21 +132,21 @@ namespace WrocRide.API.Services
                 throw new BadRequestException("Client does not have enough money to reserve this ride");
             }
 
-            _dbContext.Rides.Add(ride);
-            _dbContext.SaveChanges();
+            await _dbContext.Rides.AddAsync(ride);
+            await _dbContext.SaveChangesAsync();
 
             return ride.Id;
         }
 
-        public PagedList<RideDto> GetAll(RideQuery query)
+        public async Task<PagedList<RideDto>> GetAll(RideQuery query)
         {
             var userId = _userContext.GetUserId;
 
-            var client = _dbContext.Clients
-                .FirstOrDefault(c => c.UserId == userId);
+            var client = await _dbContext.Clients
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
-            var driver = _dbContext.Drivers
-                .FirstOrDefault(d => d.UserId == userId);
+            var driver = await _dbContext.Drivers
+                .FirstOrDefaultAsync(d => d.UserId == userId);
 
             if (client == null && driver == null)
             {
@@ -174,7 +174,9 @@ namespace WrocRide.API.Services
                 baseQuery = baseQuery.Where(r => r.RideStatus == query.RideStatus);
             }
 
-            var rides = baseQuery
+            var totalItemsCount = await baseQuery.CountAsync();
+
+            var rides = await baseQuery
                 .Select(r => new RideDto()
                 {
                     ClientName = r.Client.User.Name,
@@ -188,16 +190,16 @@ namespace WrocRide.API.Services
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, baseQuery.Count());
+            var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, totalItemsCount);
 
             return result;
         }
 
-        public RideDeatailsDto GetById(int id)
+        public async Task<RideDeatailsDto> GetById(int id)
         {
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Client)
                     .ThenInclude(c => c.User)
                 .Include(r => r.Driver)
@@ -206,7 +208,7 @@ namespace WrocRide.API.Services
                     .ThenInclude(d => d.User)
                 .Include(r => r.Rating)
                 .Where(r => r.RideStatus == RideStatus.Ended || r.RideStatus == RideStatus.Canceled)
-                .FirstOrDefault(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (ride == null)
             {
@@ -237,9 +239,9 @@ namespace WrocRide.API.Services
             return rideDeatails;
         }
 
-        public void UpdateRideStatus(int id, UpdateRideStatusDto dto)
+        public async Task UpdateRideStatus(int id, UpdateRideStatusDto dto)
         {
-            var ride = _dbContext.Rides.FirstOrDefault(r => r.Id == id);
+            var ride = await _dbContext.Rides.FirstOrDefaultAsync(r => r.Id == id);
 
             if (ride == null)
             {
@@ -247,34 +249,34 @@ namespace WrocRide.API.Services
             }
 
             ride.RideStatus = dto.RideStatus;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void DriverDecision(int id, UpdateRideStatusDto dto)
+        public async Task DriverDecision(int id, UpdateRideStatusDto dto)
         {
             var userId = _userContext.GetUserId;
 
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
+            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.UserId == userId);
 
             if (driver == null)
             {
                 throw new BadRequestException("User is not a driver");
             }
             
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Driver)
                 .Include(r => r.Client)
                     .ThenInclude(c => c.User)
                 .Where(r => r.RideStatus == RideStatus.Pending 
                             || r.RideStatus == RideStatus.ReservationRequested)
-                .FirstOrDefault(r => r.Id == id && r.DriverId == driver.Id);
+                .FirstOrDefaultAsync(r => r.Id == id && r.DriverId == driver.Id);
 
             if (ride == null)
             {
                 throw new NotFoundException("Ride not found");
             }
 
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                  if (ride.RideStatus == RideStatus.ReservationRequested && dto.RideStatus == RideStatus.Accepted)
@@ -292,32 +294,32 @@ namespace WrocRide.API.Services
                     ride.EndDate = DateTime.Now;
                 }
                 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw new Exception();
             }
         }
 
-        public void CancelRide(int id)
+        public async Task CancelRide(int id)
         {
             var userId = _userContext.GetUserId;
 
-            var client = _dbContext.Clients
+            var client = await _dbContext.Clients
                 .Include(c => c.User)
-                .FirstOrDefault(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
 
             if (client == null)
             {
                 throw new BadRequestException("This user is not a client. Failed request for a ride cancel");
             }
 
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Driver)
-                .FirstOrDefault(r => r.Id == id && 
+                .FirstOrDefaultAsync(r => r.Id == id && 
                     r.ClientId == client.Id && 
                     (r.RideStatus == RideStatus.Pending 
                      || r.RideStatus == RideStatus.Accepted
@@ -330,7 +332,7 @@ namespace WrocRide.API.Services
                 throw new NotFoundException("Ride not found");
             }
 
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 ride.EndDate = DateTime.Now;
@@ -343,40 +345,40 @@ namespace WrocRide.API.Services
 
                 ride.Driver.DriverStatus = DriverStatus.Available;
 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw new Exception();
             }
         }
         
-        public void EndRide(int id)
+        public async Task EndRide(int id)
         {
             var userId = _userContext.GetUserId;
 
-            var driver = _dbContext.Drivers
+            var driver = await _dbContext.Drivers
                 .Include(d => d.User)    
-                .FirstOrDefault(d => d.UserId == userId);
+                .FirstOrDefaultAsync(d => d.UserId == userId);
 
             if(driver == null)
             {
                 throw new BadRequestException("This user is not a driver");
             }
 
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Client)
                     .ThenInclude(c => c.User)
-                .FirstOrDefault(r => r.DriverId == driver.Id && r.Id == id && r.RideStatus == RideStatus.Ongoing);
+                .FirstOrDefaultAsync(r => r.DriverId == driver.Id && r.Id == id && r.RideStatus == RideStatus.Ongoing);
 
             if(ride == null)
             {
                 throw new NotFoundException("Ride not found");
             }
 
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 ride.EndDate = DateTime.Now;
@@ -387,12 +389,12 @@ namespace WrocRide.API.Services
 
                 ride.Client.User.Balance -= ride.Coast;
                 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw new Exception();
             }
         }

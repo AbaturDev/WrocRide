@@ -13,17 +13,17 @@
         }
 
         [HttpGet("{carId}")]
-        public ActionResult<CarDto> GetById([FromRoute]int driverId, [FromRoute]int carId)
+        public async Task<ActionResult<CarDto>> GetById([FromRoute]int driverId, [FromRoute]int carId)
         {
-            var result = _carService.GetById(driverId, carId);
+            var result = await _carService.GetById(driverId, carId);
 
             return Ok(result);
         }
 
         [HttpPut("{carId}")]
-        public ActionResult UpdateCar([FromRoute]int driverId, [FromRoute]int carId, [FromBody]UpdateCarDto dto)
+        public async Task<ActionResult> UpdateCar([FromRoute]int driverId, [FromRoute]int carId, [FromBody]UpdateCarDto dto)
         {
-            _carService.UpdateCar(driverId, carId, dto);
+            await _carService.UpdateCar(driverId, carId, dto);
 
             return Ok();
         }

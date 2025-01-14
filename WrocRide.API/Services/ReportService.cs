@@ -2,10 +2,10 @@
 {
     public interface IReportService
     {
-        void CreateReport(int rideId, CreateReportDto dto);
-        ReportDto Get(int rideId);
-        void Delete(int rideId);
-        void Update(int rideId, CreateReportDto dto);
+        Task CreateReport(int rideId, CreateReportDto dto);
+        Task<ReportDto> Get(int rideId);
+        Task Delete(int rideId);
+        Task Update(int rideId, CreateReportDto dto);
     }
     public class ReportService : IReportService
     {
@@ -17,21 +17,22 @@
             _userContextService = userContextService;
         }
 
-        public void CreateReport(int rideId, CreateReportDto dto)
+        public async Task CreateReport(int rideId, CreateReportDto dto)
         {
             var userId = _userContextService.GetUserId;
 
-            var ride = _dbContext.Rides
+            var ride = await _dbContext.Rides
                 .Include(r => r.Driver)
                 .Include(r => r.Client)
-                .FirstOrDefault(r => r.Id == rideId && r.RideStatus == RideStatus.Ended);
+                .FirstOrDefaultAsync(r => r.Id == rideId && r.RideStatus == RideStatus.Ended);
 
             if (ride == null)
             {
                 throw new NotFoundException("Ride not found.");
             }
 
-            var reportExists = _dbContext.Reports.FirstOrDefault(r => r.RideId == rideId && r.ReporterUserId == userId);
+            var reportExists = await _dbContext.Reports
+                .FirstOrDefaultAsync(r => r.RideId == rideId && r.ReporterUserId == userId);
 
             if (reportExists != null)
             {
@@ -49,7 +50,7 @@
                     ReportStatus = ReportStatus.Pending,
                     CreatedAt = DateTime.UtcNow
                 };
-                _dbContext.Reports.Add(report);
+                await _dbContext.Reports.AddAsync(report);
             }
             else if (ride.Client.UserId == userId)
             {
@@ -62,19 +63,19 @@
                     ReportStatus = ReportStatus.Pending,
                     CreatedAt = DateTime.UtcNow
                 };
-                _dbContext.Reports.Add(report);
+                await _dbContext.Reports.AddAsync(report);
             }
             else 
             {
                 throw new ForbidException("User is not part of a ride.");
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public ReportDto Get(int rideId)
+        public async Task<ReportDto> Get(int rideId)
         {
-            var report = GetReportByRideId(rideId);
+            var report = await GetReportByRideId(rideId);
 
             var result = new ReportDto
             {
@@ -90,29 +91,29 @@
             return result;
         }
 
-        public void Delete(int rideId)
+        public async Task Delete(int rideId)
         {
-            var report = GetReportByRideId(rideId);
+            var report = await GetReportByRideId(rideId);
 
             _dbContext.Reports.Remove(report);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void Update(int rideId, CreateReportDto dto)
+        public async Task Update(int rideId, CreateReportDto dto)
         {
-            var report = GetReportByRideId(rideId);
+            var report = await GetReportByRideId(rideId);
 
             report.Reason = dto.Reason;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        private Report GetReportByRideId(int rideId)
+        private async Task<Report> GetReportByRideId(int rideId)
         {
             var userId = _userContextService.GetUserId;
 
-            var report = _dbContext.Reports
-                .FirstOrDefault(r => r.RideId == rideId && r.ReporterUserId == userId);
+            var report = await _dbContext.Reports
+                .FirstOrDefaultAsync(r => r.RideId == rideId && r.ReporterUserId == userId);
 
             if (report == null)
             {

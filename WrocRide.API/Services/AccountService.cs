@@ -2,9 +2,9 @@
 {
     public interface IAccountService
     {
-        void Register(RegisterUserDto dto);
-        void RegisterDriver(RegisterDriverDto dto);
-        string Login(LoginUserDto dto);
+        Task Register(RegisterUserDto dto);
+        Task RegisterDriver(RegisterDriverDto dto);
+        Task<string> Login(LoginUserDto dto);
     }
 
     public class AccountService : IAccountService
@@ -20,9 +20,9 @@
             _jwtAuthentication = jwtAuthentication;
         }
 
-        public void Register(RegisterUserDto dto)
+        public async Task Register(RegisterUserDto dto)
         {
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 var newUser = new User()
@@ -40,10 +40,10 @@
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
                 newUser.PasswordHash = hashedPassword;
 
-                _dbContext.Users.Add(newUser);
-                _dbContext.SaveChanges();
+                await _dbContext.Users.AddAsync(newUser);
+                await _dbContext.SaveChangesAsync();
 
-                var role = _dbContext.Roles.FirstOrDefault(r => r.Id == dto.RoleId);
+                var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == dto.RoleId);
                 if(role == null)
                 {
                     throw new NotFoundException("Role not found");
@@ -55,7 +55,7 @@
                     {
                         UserId = newUser.Id
                     };
-                    _dbContext.Clients.Add(client);
+                    await _dbContext.Clients.AddAsync(client);
                 }
                 else if(role.Name == "Admin")
                 {
@@ -63,26 +63,26 @@
                     {
                         UserId = newUser.Id
                     };
-                    _dbContext.Admins.Add(admin);
+                    await _dbContext.Admins.AddAsync(admin);
                 }
                 else
                 {
                     throw new BadRequestException("Invalid role assigned");
                 }
 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch(Exception)
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw new Exception();
             }
         }
 
-        public void RegisterDriver(RegisterDriverDto dto)
+        public async Task RegisterDriver(RegisterDriverDto dto)
         {
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 var newUser = new User()
@@ -100,8 +100,8 @@
                 var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
                 newUser.PasswordHash = hashedPassword;
 
-                _dbContext.Users.Add(newUser);
-                _dbContext.SaveChanges();
+                await _dbContext.Users.AddAsync(newUser);
+                await _dbContext.SaveChangesAsync();
 
                 var document = new Document()
                 {
@@ -110,7 +110,7 @@
                     DocumentStatus = DocumentStatus.UnderVerification
                 };
 
-                _dbContext.Documents.Add(document);
+                await _dbContext.Documents.AddAsync(document);
 
                 var car = new Car()
                 {
@@ -120,8 +120,8 @@
                     BodyColor = dto.BodyColor,
                 };
 
-                _dbContext.Cars.Add(car);
-                _dbContext.SaveChanges();
+                await _dbContext.Cars.AddAsync(car);
+                await _dbContext.SaveChangesAsync();
 
                 var driver = new Driver()
                 {
@@ -132,23 +132,23 @@
                     CarId = car.Id
                 };
 
-                _dbContext.Drivers.Add(driver);
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.Drivers.AddAsync(driver);
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
 
             catch(Exception)
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw new Exception();
             }
         }
 
-        public string Login(LoginUserDto dto)
+        public async Task<string> Login(LoginUserDto dto)
         {
-            var user = _dbContext.Users
+            var user = await _dbContext.Users
                 .Include(u => u.Role)
-                .FirstOrDefault(u => u.Email == dto.Email);
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if(user == null)
             {

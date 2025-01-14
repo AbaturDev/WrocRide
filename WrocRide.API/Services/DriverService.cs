@@ -3,11 +3,11 @@ namespace WrocRide.API.Services
 {
     public interface IDriverService
     {
-        PagedList<DriverDto> GetAll(DriverQuery query);
-        DriverDto GetById(int id);
-        void UpdatePricing(UpdateDriverPricingDto dto);
-        void UpdateStatus(UpdateDriverStatusDto dto);
-        PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query);
+        Task<PagedList<DriverDto>> GetAll(DriverQuery query);
+        Task<DriverDto> GetById(int id);
+        Task UpdatePricing(UpdateDriverPricingDto dto);
+        Task UpdateStatus(UpdateDriverStatusDto dto);
+        Task<PagedList<RatingDto>> GetRatings(int id, DriverRatingsQuery query);
     }
 
     public class DriverService : IDriverService
@@ -20,7 +20,7 @@ namespace WrocRide.API.Services
             _userContext = userContext;
         }
 
-        public PagedList<DriverDto> GetAll(DriverQuery query)
+        public async Task<PagedList<DriverDto>> GetAll(DriverQuery query)
         {
             IQueryable<Driver> baseQuery = _dbContext.Drivers
                 .Include(d => d.Car)
@@ -31,7 +31,9 @@ namespace WrocRide.API.Services
                 baseQuery = baseQuery.Where(d => d.DriverStatus == query.DriverStatus);
             }
 
-            var drivers = baseQuery
+            var totalItemsCount = await baseQuery.CountAsync();
+
+            var drivers = await baseQuery
                 .Select(d => new DriverDto()
                 {
                     Name = d.User.Name,
@@ -42,19 +44,19 @@ namespace WrocRide.API.Services
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, baseQuery.Count());
+            var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, totalItemsCount);
             
             return result;
         }
 
-        public DriverDto GetById(int id)
+        public async Task<DriverDto> GetById(int id)
         {
-            var driver = _dbContext.Drivers
+            var driver = await _dbContext.Drivers
                 .Include(d => d.Car)
                 .Include(d => d.User)
-                .FirstOrDefault(d => d.Id == id);
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if(driver == null)
             {
@@ -73,11 +75,11 @@ namespace WrocRide.API.Services
             return result;
         }
 
-        public void UpdatePricing(UpdateDriverPricingDto dto)
+        public async Task UpdatePricing(UpdateDriverPricingDto dto)
         {
             var userId = _userContext.GetUserId;
 
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
+            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.UserId == userId);
             
             if(driver == null)
             {
@@ -85,14 +87,14 @@ namespace WrocRide.API.Services
             }
 
             driver.Pricing = dto.Pricing;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void UpdateStatus(UpdateDriverStatusDto dto)
+        public async Task UpdateStatus(UpdateDriverStatusDto dto)
         {
             var userId = _userContext.GetUserId;
 
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.UserId == userId);
+            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.UserId == userId);
 
             if (driver == null)
             {
@@ -100,15 +102,15 @@ namespace WrocRide.API.Services
             }
 
             driver.DriverStatus = dto.DriverStatus;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public PagedList<RatingDto> GetRatings(int id, DriverRatingsQuery query)
+        public async Task<PagedList<RatingDto>> GetRatings(int id, DriverRatingsQuery query)
         {
-            var driver = _dbContext.Drivers
+            var driver = await _dbContext.Drivers
                 .Include(d => d.Rides)
                 .ThenInclude(d => d.Rating)
-                .FirstOrDefault(d => d.Id == id);
+                .FirstOrDefaultAsync(d => d.Id == id);
 
             if(driver == null)
             {
@@ -122,8 +124,10 @@ namespace WrocRide.API.Services
                 .Include(r => r.Client)
                     .ThenInclude(r => r.User)
                 .Where(r => r.DriverId == driver.Id && r.Rating != null);
+
+            var totalItemsCount = await rides.CountAsync();
             
-            var ratings = rides
+            var ratings = await rides
                 .Select(r => new RatingDto()
                 {
                     Grade = r.Rating.Grade,
@@ -136,9 +140,9 @@ namespace WrocRide.API.Services
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, rides.Count());
+            var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, totalItemsCount);
          
             return result;
         }

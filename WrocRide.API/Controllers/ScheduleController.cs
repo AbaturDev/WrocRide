@@ -14,25 +14,25 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Create([FromBody] CreateScheduleDto dto)
+    public async Task<ActionResult> Create([FromBody] CreateScheduleDto dto)
     {
-        var id = _scheduleService.CreateSchedule(dto);
+        var id = await _scheduleService.CreateSchedule(dto);
 
         return Created($"api/schedule/{id}", null);
     }
     
     [HttpDelete("{id}")]
-    public ActionResult Delete([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
-        _scheduleService.DeleteSchedule(id);
+        await _scheduleService.DeleteSchedule(id);
         
         return NoContent();
     }
 
     [HttpGet("{id}")]
-    public ActionResult<ScheduleDto> GetById([FromRoute] int id)
+    public async Task<ActionResult<ScheduleDto>> GetById([FromRoute] int id)
     {
-        var schedule = _scheduleService.GetSchedule(id);
+        var schedule = await _scheduleService.GetSchedule(id);
         
         return Ok(schedule);
     }

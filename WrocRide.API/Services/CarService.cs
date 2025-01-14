@@ -1,10 +1,9 @@
-﻿
-namespace WrocRide.API.Services
+﻿namespace WrocRide.API.Services
 {
     public interface ICarService
     {
-        void UpdateCar(int driverId, int carId, UpdateCarDto dto);
-        CarDto GetById(int driverId, int carId);
+        Task UpdateCar(int driverId, int carId, UpdateCarDto dto);
+        Task<CarDto> GetById(int driverId, int carId);
     }
 
     public class CarService : ICarService
@@ -17,13 +16,13 @@ namespace WrocRide.API.Services
             _userContextService = user;
         }
 
-        public void UpdateCar(int driverId, int carId, UpdateCarDto dto)
+        public async Task UpdateCar(int driverId, int carId, UpdateCarDto dto)
         {
             var userId = _userContextService.GetUserId;
 
-            var driver = _dbContext.Drivers
+            var driver = await _dbContext.Drivers
                 .Include(d => d.Car)
-                .FirstOrDefault(d => d.Id == driverId);
+                .FirstOrDefaultAsync(d => d.Id == driverId);
 
             if (driver == null)
             {
@@ -65,14 +64,14 @@ namespace WrocRide.API.Services
                 driver.Car.YearProduced = dto.YearProduced.Value;
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public CarDto GetById(int driverId, int carId)
+        public async Task<CarDto> GetById(int driverId, int carId)
         {
-            var driver = _dbContext.Drivers
+            var driver = await _dbContext.Drivers
                 .Include(d => d.Car)
-                .FirstOrDefault(d => d.Id == driverId);
+                .FirstOrDefaultAsync(d => d.Id == driverId);
 
             if(driver == null)
             {

@@ -2,10 +2,10 @@ namespace WrocRide.API.Services;
 
 public interface IScheduleService
 {
-    int CreateSchedule(CreateScheduleDto dto);
-    void DeleteSchedule(int id);
-    ScheduleDto GetSchedule(int id);
-    void GenerateRidesFromSchedules();
+    Task<int> CreateSchedule(CreateScheduleDto dto);
+    Task DeleteSchedule(int id);
+    Task<ScheduleDto> GetSchedule(int id);
+    Task GenerateRidesFromSchedules();
 }
 
 public class ScheduleService : IScheduleService
@@ -21,19 +21,19 @@ public class ScheduleService : IScheduleService
         _logger = logger;
     }
 
-    public int CreateSchedule(CreateScheduleDto dto)
+    public async Task<int> CreateSchedule(CreateScheduleDto dto)
     {
         var userId = _userContext.GetUserId;
 
-        var client = _dbContext.Clients.FirstOrDefault(c => c.UserId == userId);
+        var client = await _dbContext.Clients.FirstOrDefaultAsync(c => c.UserId == userId);
         if (client == null)
         {
             throw new BadRequestException("User is not a client");
         }
 
-        var conflictingSchedules = _dbContext.Schedules
+        var conflictingSchedules = await _dbContext.Schedules
             .Include(s => s.ScheduleDays)
-            .Any(s => s.ClientId == client.Id 
+            .AnyAsync(s => s.ClientId == client.Id 
                       && s.ScheduleDays.Any(sd => dto.DayOfWeekIds.Contains(sd.DayOfWeekId) 
                       && s.StartTime == dto.StartTime));
 
@@ -53,8 +53,8 @@ public class ScheduleService : IScheduleService
             Distance = 1                            //will be replaced by google api
         };
 
-        _dbContext.Schedules.Add(schedule);
-        _dbContext.SaveChanges();
+        await _dbContext.Schedules.AddAsync(schedule);
+        await _dbContext.SaveChangesAsync();
 
         foreach (var dayOfWeekId in dto.DayOfWeekIds)
         {
@@ -63,24 +63,24 @@ public class ScheduleService : IScheduleService
                 DayOfWeekId = dayOfWeekId,
                 ScheduleId = schedule.Id
             };
-            _dbContext.ScheduleDays.Add(scheduleDay);
+            await _dbContext.ScheduleDays.AddAsync(scheduleDay);
         }
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         
         return schedule.Id;
     }
     
-    public void DeleteSchedule(int id)
+    public async Task DeleteSchedule(int id)
     {
-        var schedule = GetCurrentClientSchedule(id);
+        var schedule = await GetCurrentClientSchedule(id);
 
         _dbContext.Schedules.Remove(schedule);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
     }
 
-    public ScheduleDto GetSchedule(int id)
+    public async Task<ScheduleDto> GetSchedule(int id)
     {
-        var schedule = GetCurrentClientSchedule(id);
+        var schedule = await GetCurrentClientSchedule(id);
 
         var result = new ScheduleDto()
         {
@@ -98,21 +98,21 @@ public class ScheduleService : IScheduleService
         return result;
     }
 
-    private Schedule GetCurrentClientSchedule(int id)
+    private async Task<Schedule> GetCurrentClientSchedule(int id)
     {
         var userId = _userContext.GetUserId;
 
-        var client = _dbContext.Clients.FirstOrDefault(c => c.UserId == userId);
+        var client = await _dbContext.Clients.FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (client == null)
         {
             throw new BadRequestException("User is not a client");
         }
         
-        var schedule = _dbContext.Schedules
+        var schedule = await _dbContext.Schedules
             .Include(s => s.ScheduleDays)
             .ThenInclude(s => s.DayOfWeek)
-            .FirstOrDefault(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id);
 
         if (schedule == null)
         {
@@ -127,16 +127,16 @@ public class ScheduleService : IScheduleService
         return schedule;
     }
 
-    public void GenerateRidesFromSchedules()
+    public async Task GenerateRidesFromSchedules()
     {
         var today = (int)DateTime.Today.DayOfWeek;
 
-        var schedules = _dbContext.Schedules
+        var schedules = await _dbContext.Schedules
             .Include(s => s.ScheduleDays)
             .Include(s => s.Client)
                 .ThenInclude(c => c.User)
             .Where(s => s.ScheduleDays.Any(sd => sd.DayOfWeekId == today))
-            .ToList();
+            .ToListAsync();
 
         foreach (var schedule in schedules)
         {
@@ -144,8 +144,8 @@ public class ScheduleService : IScheduleService
 
             try
             {
-                var rideAlreadyExist = _dbContext.Rides
-                    .Any(r => r.StartDate.Date == DateTime.Today.Date
+                var rideAlreadyExist = await _dbContext.Rides
+                    .AnyAsync(r => r.StartDate.Date == DateTime.Today.Date
                               && r.StartDate.TimeOfDay == schedule.StartTime
                               && r.ClientId == schedule.ClientId
                               && r.RideStatus != RideStatus.Canceled);
@@ -164,11 +164,11 @@ public class ScheduleService : IScheduleService
                     continue;
                 }
 
-                var driver = _dbContext.Drivers
+                var driver = await _dbContext.Drivers
                     .Where(d => d.DriverStatus == DriverStatus.Available
                                          && d.Pricing * schedule.Distance <= schedule.BudgetPerRide)
                     .OrderBy(d => d.Rating)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 if (driver == null)
                 {
@@ -189,8 +189,8 @@ public class ScheduleService : IScheduleService
                     Coast = driver.Pricing * schedule.Distance
                 };
 
-                _dbContext.Rides.Add(ride);
-                _dbContext.SaveChanges();
+                await _dbContext.Rides.AddAsync(ride);
+                await _dbContext.SaveChangesAsync();
                 _logger.LogInformation($"Succesfully created todays ride id {ride.Id} for schedule Id {schedule.Id}");
             }
             catch(Exception)

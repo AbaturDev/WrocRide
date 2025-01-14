@@ -15,33 +15,33 @@ namespace WrocRide.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<UserDto> Get()
+        public async Task<ActionResult<UserDto>> Get()
         {
-            var result = _userService.GetUser();
+            var result = await _userService.GetUser();
 
             return Ok(result);
         }
 
         [HttpPut]
-        public ActionResult UpdateProfile([FromBody] UpdateUserDto dto)
+        public async Task<ActionResult> UpdateProfile([FromBody] UpdateUserDto dto)
         {
-            _userService.UpdateUser(dto);
+            await _userService.UpdateUser(dto);
 
             return Ok();
         }
 
         [HttpPut("balance")]
-        public ActionResult AddCredits([FromBody] AddCreditsDto dto)
+        public async Task<ActionResult> AddCredits([FromBody] AddCreditsDto dto)
         {
-            _userService.AddCredits(dto);
+            await _userService.AddCredits(dto);
             
             return Ok();
         }
 
         [HttpPut("deactivate-account")]
-        public ActionResult DeactivateAccount()
+        public async Task<ActionResult> DeactivateAccount()
         {
-            _userService.DeactivateAccount();
+            await _userService.DeactivateAccount();
 
             return Ok();
         }

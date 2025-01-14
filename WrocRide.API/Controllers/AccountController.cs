@@ -11,23 +11,23 @@
         }
 
         [HttpPost("register")]
-        public ActionResult Register([FromBody] RegisterUserDto dto)
+        public async Task<ActionResult> Register([FromBody] RegisterUserDto dto)
         {
-            _accountService.Register(dto);
+            await _accountService.Register(dto);
             return Ok();
         }
 
         [HttpPost("register-driver")]
-        public ActionResult RegisterDriver([FromBody] RegisterDriverDto dto)
+        public async Task<ActionResult> RegisterDriver([FromBody] RegisterDriverDto dto)
         {
-            _accountService.RegisterDriver(dto);
+            await _accountService.RegisterDriver(dto);
             return Ok();
         }
 
         [HttpPost("login")]
-        public ActionResult Login([FromBody] LoginUserDto dto)
+        public async Task<ActionResult> Login([FromBody] LoginUserDto dto)
         {
-            string token = _accountService.Login(dto);
+            string token = await _accountService.Login(dto);
 
             return Ok(token);
         }

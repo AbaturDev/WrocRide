@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Rider IDE configuration files
+.idea/
+
+# macOS system files
+.DS_Store

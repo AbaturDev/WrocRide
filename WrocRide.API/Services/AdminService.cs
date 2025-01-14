@@ -2,13 +2,13 @@
 {
     public interface IAdminService
     {
-        PagedList<DocumentDto> GetDocuments(DocumentQuery query);
-        void UpdateDocument(int id, UpdateDocumentDto dto);
-        DocumentDto GetDocumentByDriverId(int id);
-        PagedList<UserDto> GetAll(UserQuery query);
-        void UpdateUser(int id, UpdateUserDto dto);
-        PagedList<ReportDto> GetReports(ReportQuery query);
-        void UpdateReport(int id, UpdateReportDto dto);
+        Task<PagedList<DocumentDto>> GetDocuments(DocumentQuery query);
+        Task UpdateDocument(int id, UpdateDocumentDto dto);
+        Task<DocumentDto> GetDocumentByDriverId(int id);
+        Task<PagedList<UserDto>> GetAll(UserQuery query);
+        Task UpdateUser(int id, UpdateUserDto dto);
+        Task<PagedList<ReportDto>> GetReports(ReportQuery query);
+        Task UpdateReport(int id, UpdateReportDto dto);
     }
     public class AdminService : IAdminService
     {
@@ -24,7 +24,7 @@
             _passwordHasher = passwordHasher;
         }
 
-        public PagedList<DocumentDto> GetDocuments(DocumentQuery query)
+        public async Task<PagedList<DocumentDto>> GetDocuments(DocumentQuery query)
         {
             IQueryable<Document> baseQuery = _dbContext.Documents;
 
@@ -33,7 +33,9 @@
                 baseQuery = baseQuery.Where(d => d.DocumentStatus == query.DocumentStatus);
             }
 
-            var documents = baseQuery
+            var totalItemsCount = await baseQuery.CountAsync();
+            
+            var documents = await baseQuery
                 .Select(d => new DocumentDto()
                 {
                     Id = d.Id,
@@ -43,27 +45,27 @@
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, baseQuery.Count());
+            var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, totalItemsCount);
 
             return result;
         }
 
-        public void UpdateDocument(int id, UpdateDocumentDto dto)
+        public async Task UpdateDocument(int id, UpdateDocumentDto dto)
         {
             var userId = _userContextService.GetUserId;
-            var admin = _dbContext.Admins.FirstOrDefault(u => u.UserId == userId);
+            var admin = await _dbContext.Admins.FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (admin == null)
             {
                 throw new NotFoundException("Admin not found");
             }
 
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var document = _dbContext.Documents.FirstOrDefault(d => d.Id == id);
+                var document = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Id == id);
 
                 if (document == null)
                 {
@@ -76,7 +78,7 @@
 
                 if (dto.DocumentStatus == DocumentStatus.Accepted)
                 {
-                    var driver = _dbContext.Drivers.FirstOrDefault(d => d.DocumentId == id);
+                    var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.DocumentId == id);
 
                     if (driver == null)
                     {
@@ -85,7 +87,7 @@
 
                     driver.DriverStatus = DriverStatus.Offline;
 
-                    var userDriver = _dbContext.Users.FirstOrDefault(u => u.Id == driver.UserId);
+                    var userDriver = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == driver.UserId);
                     
                     if (userDriver == null)
                     {
@@ -95,26 +97,26 @@
                     userDriver.IsActive = true;
                 }
 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch (Exception)
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw;
             }       
         }
 
-        public DocumentDto GetDocumentByDriverId(int id)
+        public async Task<DocumentDto> GetDocumentByDriverId(int id)
         {
-            var driver = _dbContext.Drivers.FirstOrDefault(d => d.Id == id);
+            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.Id == id);
 
             if (driver == null)
             {
                 throw new NotFoundException("Driver not found");
             }
 
-            var document = _dbContext.Documents.FirstOrDefault(doc => doc.Id == driver.DocumentId);
+            var document = await _dbContext.Documents.FirstOrDefaultAsync(doc => doc.Id == driver.DocumentId);
 
             if (document == null)
             {
@@ -131,7 +133,7 @@
 
             return result;
         }
-        public PagedList<UserDto> GetAll(UserQuery query)
+        public async Task<PagedList<UserDto>> GetAll(UserQuery query)
         {
             IQueryable<User> baseQuery = _dbContext.Users;
 
@@ -140,7 +142,9 @@
                 baseQuery = baseQuery.Where(u => u.RoleId == query.RoleId);
             }
 
-            var users = baseQuery
+            var totalItemsCount = await baseQuery.CountAsync();
+            
+            var users = await baseQuery
                 .Select(u => new UserDto()
                 {
                     Id = u.Id,
@@ -155,16 +159,16 @@
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, baseQuery.Count());
+            var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, totalItemsCount);
 
             return result;
         }
 
-        public void UpdateUser(int id, UpdateUserDto dto)
+        public async Task UpdateUser(int id, UpdateUserDto dto)
         {
-            var user = _dbContext.Users.FirstOrDefault(d => d.Id == id);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(d => d.Id == id);
 
             if (user == null)
             {
@@ -202,10 +206,10 @@
                 user.IsActive = (bool)dto.IsActive;
             }
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public PagedList<ReportDto> GetReports(ReportQuery query)
+        public async Task<PagedList<ReportDto>> GetReports(ReportQuery query)
         {
             IQueryable<Report> baseQuery = _dbContext.Reports;
 
@@ -219,7 +223,9 @@
                 baseQuery = baseQuery.Where(r => r.ReportedUserId == query.ReportedId);
             }
 
-            var reports = baseQuery
+            var totalItemsCount = await baseQuery.CountAsync();
+
+            var reports = await baseQuery
                 .Select(r => new ReportDto()
                 {
                     Id = r.Id,
@@ -233,27 +239,27 @@
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
-                .ToList();
+                .ToListAsync();
 
-            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, baseQuery.Count());
+            var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, totalItemsCount);
 
             return result;
         }
 
-        public void UpdateReport(int id, UpdateReportDto dto)
+        public async Task UpdateReport(int id, UpdateReportDto dto)
         {
             var userId = _userContextService.GetUserId;
-            var admin = _dbContext.Admins.FirstOrDefault(u => u.UserId == userId);
+            var admin = await _dbContext.Admins.FirstOrDefaultAsync(u => u.UserId == userId);
 
             if (admin == null)
             {
                 throw new ForbidException("User is not an admin.");
             }
 
-            using var dbContextTransaction = _dbContext.Database.BeginTransaction();
+            await using var dbContextTransaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var report = _dbContext.Reports.FirstOrDefault(r => r.Id == id);
+                var report = await _dbContext.Reports.FirstOrDefaultAsync(r => r.Id == id);
 
                 if (report == null)
                 {
@@ -270,15 +276,15 @@
                         IsActive = false
                     };
 
-                    UpdateUser(report.ReportedUserId, status);
+                    await UpdateUser(report.ReportedUserId, status);
                 }
 
-                _dbContext.SaveChanges();
-                dbContextTransaction.Commit();
+                await _dbContext.SaveChangesAsync();
+                await dbContextTransaction.CommitAsync();
             }
             catch (Exception)
             {
-                dbContextTransaction.Rollback();
+                await dbContextTransaction.RollbackAsync();
                 throw;
             }
 

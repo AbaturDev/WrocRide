@@ -15,33 +15,33 @@ namespace WrocRide.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateReport([FromRoute] int rideId, [FromBody] CreateReportDto dto)
+        public async Task<ActionResult> CreateReport([FromRoute] int rideId, [FromBody] CreateReportDto dto)
         {
-            _reportService.CreateReport(rideId, dto);
+            await _reportService.CreateReport(rideId, dto);
 
             return Ok();
         }
 
         [HttpGet]
-        public ActionResult<ReportDto> Get([FromRoute] int rideId)
+        public async Task<ActionResult<ReportDto>> Get([FromRoute] int rideId)
         {
-            var result = _reportService.Get(rideId);
+            var result = await _reportService.Get(rideId);
 
             return Ok(result);
         }
 
         [HttpDelete]
-        public ActionResult Delete([FromRoute] int rideId)
+        public async Task<ActionResult> Delete([FromRoute] int rideId)
         {
-            _reportService.Delete(rideId);
+            await _reportService.Delete(rideId);
 
             return NoContent();
         }
 
         [HttpPut]
-        public ActionResult Update([FromRoute] int rideId, [FromBody] CreateReportDto dto)
+        public async Task<ActionResult> Update([FromRoute] int rideId, [FromBody] CreateReportDto dto)
         {
-            _reportService.Update(rideId, dto);
+            await _reportService.Update(rideId, dto);
 
             return Ok();
         }

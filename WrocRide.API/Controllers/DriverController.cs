@@ -13,41 +13,41 @@
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DriverDto>> Get([FromQuery] DriverQuery query)
+        public async Task<ActionResult<IEnumerable<DriverDto>>> Get([FromQuery] DriverQuery query)
         {
-            var result = _driverService.GetAll(query);
+            var result = await _driverService.GetAll(query);
 
             return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<DriverDto> GetById([FromRoute] int id)
+        public async Task<ActionResult<DriverDto>> GetById([FromRoute] int id)
         {
-            var result = _driverService.GetById(id);
+            var result = await _driverService.GetById(id);
 
             return Ok(result);
         }
 
         [HttpPut("pricing")]
-        public ActionResult UpdatePricing([FromBody] UpdateDriverPricingDto dto)
+        public async Task<ActionResult> UpdatePricing([FromBody] UpdateDriverPricingDto dto)
         {
-            _driverService.UpdatePricing(dto);
+            await _driverService.UpdatePricing(dto);
 
             return Ok();
         }
 
         [HttpPut("status")]
-        public ActionResult UpdateStatus([FromBody] UpdateDriverStatusDto dto)
+        public async Task<ActionResult> UpdateStatus([FromBody] UpdateDriverStatusDto dto)
         {
-            _driverService.UpdateStatus(dto);
+            await _driverService.UpdateStatus(dto);
 
             return Ok();
         }
 
         [HttpGet("{id}/ratings")]
-        public ActionResult<IEnumerable<RatingDto>> GetRatings([FromRoute] int id, [FromQuery] DriverRatingsQuery query)
+        public async Task<ActionResult<IEnumerable<RatingDto>>> GetRatings([FromRoute] int id, [FromQuery] DriverRatingsQuery query)
         {
-            var result = _driverService.GetRatings(id, query);
+            var result = await _driverService.GetRatings(id, query);
 
             return Ok(result);
         }

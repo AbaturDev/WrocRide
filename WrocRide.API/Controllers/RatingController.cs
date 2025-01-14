@@ -13,34 +13,34 @@
         }
 
         [HttpPost]
-        public ActionResult Create([FromRoute] int rideId, [FromBody] CreateRatingDto dto)
+        public async Task<ActionResult> Create([FromRoute] int rideId, [FromBody] CreateRatingDto dto)
         {
-            int id = _ratingService.CreateRating(rideId, dto);
+            int id = await _ratingService.CreateRating(rideId, dto);
 
             return Created($"api/ride/{rideId}/rating/{id}", null);
         }
 
         [HttpGet]
         [Authorize]
-        public ActionResult<RatingDto> Get([FromRoute] int rideId)
+        public async Task<ActionResult<RatingDto>> Get([FromRoute] int rideId)
         {
-            var result = _ratingService.Get(rideId);
+            var result = await _ratingService.Get(rideId);
 
             return Ok(result);
         }
 
         [HttpDelete]
-        public ActionResult Delete([FromRoute] int rideId)
+        public async Task<ActionResult> Delete([FromRoute] int rideId)
         {
-            _ratingService.Delete(rideId);
+            await _ratingService.Delete(rideId);
 
             return NoContent();
         }
 
         [HttpPut]
-        public ActionResult Update([FromRoute] int rideId, [FromBody] CreateRatingDto dto)
+        public async Task<ActionResult> Update([FromRoute] int rideId, [FromBody] CreateRatingDto dto)
         {
-            _ratingService.Update(rideId, dto);
+            await _ratingService.Update(rideId, dto);
 
             return Ok();
         }
