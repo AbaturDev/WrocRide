@@ -31,7 +31,7 @@
                     Surename = dto.Surename,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
-                    RoleId = dto.RoleId,
+                    RoleId = 1,
                     JoinAt = DateTime.Now,
                     Balance = 0,
                     IsActive = true
@@ -43,32 +43,11 @@
                 await _dbContext.Users.AddAsync(newUser);
                 await _dbContext.SaveChangesAsync();
 
-                var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == dto.RoleId);
-                if(role == null)
+                var client = new Client()
                 {
-                    throw new NotFoundException("Role not found");
-                }
-                
-                if(role.Name == "Client")
-                {
-                    var client = new Client()
-                    {
-                        UserId = newUser.Id
-                    };
-                    await _dbContext.Clients.AddAsync(client);
-                }
-                else if(role.Name == "Admin")
-                {
-                    var admin = new Admin()
-                    {
-                        UserId = newUser.Id
-                    };
-                    await _dbContext.Admins.AddAsync(admin);
-                }
-                else
-                {
-                    throw new BadRequestException("Invalid role assigned");
-                }
+                    UserId = newUser.Id
+                };
+                await _dbContext.Clients.AddAsync(client);
 
                 await _dbContext.SaveChangesAsync();
                 await dbContextTransaction.CommitAsync();
@@ -91,7 +70,7 @@
                     Surename = dto.Surename,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
-                    RoleId = dto.RoleId,
+                    RoleId = 2,
                     JoinAt = DateTime.Now,
                     Balance = 0,
                     IsActive = false

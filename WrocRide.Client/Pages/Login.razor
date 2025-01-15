@@ -1,0 +1,193 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject IAccountService AccountService
+
+<h3>WrocRide</h3>
+
+<div class="login-container">
+    <div class="tabs">
+        <div class='@GetTabClass("login")' @onclick='() => activeTab = "login"'>Zaloguj</div>
+        <div class='@GetTabClass("register")' @onclick='() => activeTab = "register"'>Zarejestruj</div>
+        <div class='@GetTabClass("registerDriver")' @onclick='() => activeTab = "registerDriver"'>Zarejestruj jako kierowca</div>
+    </div>
+
+    <div class="tab-content">
+        @if(activeTab == "login")
+        {
+            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                <div>
+                    <label>Email</label>
+                    <InputText @bind-Value ="loginModel.Email" />
+                </div>
+                <div>
+                    <label>Hasło</label>
+                    <InputText @bind-Value ="loginModel.Password" InputType="password" />
+                </div>
+                <button type="submit">Zaloguj</button>
+            </EditForm>
+        }
+        else if(activeTab == "register")
+        {
+            <EditForm Model="registerUser" OnValidSubmit="HandleRegister">
+                <div>
+                    <label>Imię</label>
+                    <InputText @bind-Value="registerUser.Name" />
+                </div>
+                <div>
+                    <label>Nazwisko</label>
+                    <InputText @bind-Value="registerUser.Surename" />
+                </div>
+                <div>
+                    <label>Email</label>
+                    <InputText @bind-Value="registerUser.Email" />
+                </div>
+                <div>
+                    <label>Numer telefonu</label>
+                    <InputText @bind-Value="registerUser.PhoneNumber" />
+                </div>
+                <div>
+                    <label>Hasło</label>
+                    <InputText @bind-Value="registerUser.Password" InputType="password" />
+                </div>
+                <div>
+                    <label>Potwierdź hasło</label>
+                    <InputText @bind-Value="registerUser.ConfirmPassword" InputType="password" />
+                </div>
+
+                <button type="submit">Zarejestruj</button>
+            </EditForm>
+        }
+        else if(activeTab == "registerDriver")
+        {
+            <EditForm Model="registerDriver" OnValidSubmit="HandleRegisterDriver">
+                @if (driverRegistrationStep == 1)
+                {
+                    <h5>Dane użytkownika</h5>
+                    <div>
+                        <label>Imię</label>
+                        <InputText @bind-Value="registerDriver.Name" />
+                    </div>
+                    <div>
+                        <label>Nazwisko</label>
+                        <InputText @bind-Value="registerDriver.Surename" />
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <InputText @bind-Value="registerDriver.Email" />
+                    </div>
+                    <div>
+                        <label>Numer telefonu</label>
+                        <InputText @bind-Value="registerDriver.PhoneNumber" />
+                    </div>
+                    <div>
+                        <label>Hasło</label>
+                        <InputText @bind-Value="registerDriver.Password" InputType="password" />
+                    </div>
+                    <div>
+                        <label>Potwierdź hasło</label>
+                        <InputText @bind-Value="registerDriver.ConfirmPassword" InputType="password" />
+                    </div>
+                }
+                else if(driverRegistrationStep == 2)
+                {
+                    <h5>Dane kierowcy</h5>
+                    <div>
+                        <label>Cena za km (pln/km)</label>
+                        <InputNumber @bind-Value="registerDriver.Pricing"/>
+                    </div>
+                    <div>
+                         <label>Prawo jazdy (lokalizacja pliku)</label>
+                         <InputText @bind-Value="registerDriver.FileLocation"/>
+                    </div>
+                }
+                else if(driverRegistrationStep == 3)
+                {
+                    <h5>Dane pojazdu</h5>
+                    <div>
+                        <label>Numer rejestracyjny</label>
+                        <InputText @bind-Value="registerDriver.LicensePlate" />
+                    </div>
+                    <div>
+                        <label>Marka</label>
+                        <InputText @bind-Value="registerDriver.Brand" />
+                    </div>
+                    <div>
+                        <label>Model</label>
+                        <InputText @bind-Value="registerDriver.Model" />
+                    </div>
+                    <div>
+                        <label>Kolor</label>
+                        <InputText @bind-Value="registerDriver.BodyColor" />
+                    </div>
+                    <div>
+                        <label>Rok produkcji</label>
+                        <InputNumber @bind-Value="registerDriver.YearProduced" />
+                    </div>
+                }
+
+                <div class="form-navigation">
+                    @if(driverRegistrationStep > 1)
+                    {
+                        <button type="button" @onclick="PreviousStep">Wstecz</button>
+                    }
+
+                    @if (driverRegistrationStep < 3)
+                    {
+                        <button type="button" @onclick="NextStep">Dalej</button>
+                    }
+
+                    @if(driverRegistrationStep == 3)
+                    {
+                        <button type="submit">Zarejestruj</button>
+                    }
+                </div>
+
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    private string activeTab = "login";
+    private int driverRegistrationStep = 1;
+    private LoginUserDto loginModel = new LoginUserDto();
+    private RegisterUserDto registerUser = new RegisterUserDto();
+    private RegisterDriverDto registerDriver = new RegisterDriverDto();
+
+    private async Task HandleLogin()
+    {
+        var token = await AccountService.Login(loginModel);
+        Console.WriteLine(token);
+    }
+
+    private async Task HandleRegister()
+    {
+        await AccountService.Register(registerUser);
+    }
+
+    private async Task HandleRegisterDriver()
+    {
+        await AccountService.RegisterDriver(registerDriver);
+    }
+
+    private string GetTabClass(string tab)
+    {
+        return tab == activeTab ? "active" : "";
+    }
+
+    private void NextStep()
+    {
+        if(driverRegistrationStep < 3)
+        {
+            driverRegistrationStep++;
+        }
+    }
+
+    private void PreviousStep()
+    {
+        if(driverRegistrationStep > 1)
+        {
+            driverRegistrationStep--;
+        }
+    }
+}

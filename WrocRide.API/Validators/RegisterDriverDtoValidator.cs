@@ -22,10 +22,6 @@ namespace WrocRide.API.Validators
                 .NotEmpty()
                 .EmailAddress();
 
-            RuleFor(x => x.RoleId)
-                .NotEmpty()
-                .InclusiveBetween(1, 3);
-
             RuleFor(x => x.Password).MinimumLength(8);
             RuleFor(x => x.ConfirmPassword).Equal(e => e.Password);
 

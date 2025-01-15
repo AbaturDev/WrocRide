@@ -85,9 +85,21 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendClient", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors("FrontendClient");
+
 app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
