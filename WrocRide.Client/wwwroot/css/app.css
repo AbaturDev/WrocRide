@@ -297,3 +297,34 @@ form button:hover {
     background-color: #0056b3;
 }
 
+.login-title-container {
+    display: flex;
+    text-align: center;
+}
+
+.login-title-container .login-title {
+    font-weight: bold;
+}
+
+.login-title-container {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.login-title-container .login-title {
+    font-size: 3rem;  
+    color: #333; 
+    font-weight: bold;
+}
+
+.login-title-container .logo {
+    max-width: 300px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root {
+    --color-purple: #3a0647;
+}
