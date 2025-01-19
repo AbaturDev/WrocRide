@@ -21,7 +21,6 @@
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
         public async Task<ActionResult<DriverDto>> GetById([FromRoute] int id)
         {
             var result = await _driverService.GetById(id);

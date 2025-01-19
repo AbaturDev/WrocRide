@@ -2,7 +2,7 @@
 
 namespace WrocRide.Client.Interfaces
 {
-    public interface IAccountService
+    public interface IAuthenticationService
     {
         Task<string> Login(LoginUserDto dto);
         Task Logout();
