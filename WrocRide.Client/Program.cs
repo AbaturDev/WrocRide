@@ -20,5 +20,6 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 await builder.Build().RunAsync();
