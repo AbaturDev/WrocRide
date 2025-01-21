@@ -1,0 +1,46 @@
+﻿@inject IUserService UserService
+
+<BaseModal Title="Dodaj środki" IsVisible="ShowModal" IsVisibleChanged="ShowModalChanged">
+    <EditForm Model="_addCreditsDto" OnValidSubmit="AddCredits">
+        <label>Kwota</label>
+        <InputNumber @bind-Value="_addCreditsDto.Credits" />
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Dodaj środki</button>
+        </div>
+    </EditForm>
+
+    @if(isSuccess)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            Środki dodane pomyślnie
+        </div>
+    }
+</BaseModal>
+
+@code {
+    [Parameter] public bool ShowModal { get; set; }
+    [Parameter] public EventCallback<bool> ShowModalChanged { get; set; }
+
+    private AddCreditsDto _addCreditsDto = new();
+    private bool isSuccess = false;
+
+    private async Task ToggleModal(bool show)
+    {
+        ShowModal = show;
+        await ShowModalChanged.InvokeAsync(show);
+
+        if(!show)
+        {
+            isSuccess = false;
+        }
+    }
+
+    private async Task AddCredits()
+    {
+        await UserService.AddCredits(_addCreditsDto);
+        isSuccess = true;
+
+        await Task.Delay(5000);
+        isSuccess = false;
+    }
+}

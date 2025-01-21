@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <label>Hasło</label>
-                    <InputText @bind-Value ="_loginModel.Password" InputType="password" />
+                    <InputText @bind-Value ="_loginModel.Password" type="password" />
                 </div>
                 <button type="submit">Zaloguj</button>
             </EditForm>
@@ -48,11 +48,11 @@
                 </div>
                 <div>
                     <label>Hasło</label>
-                    <InputText @bind-Value="_registerUser.Password" InputType="password" />
+                    <InputText @bind-Value="_registerUser.Password" type="password" />
                 </div>
                 <div>
                     <label>Potwierdź hasło</label>
-                    <InputText @bind-Value="_registerUser.ConfirmPassword" InputType="password" />
+                    <InputText @bind-Value="_registerUser.ConfirmPassword" type="password" />
                 </div>
 
                 <button type="submit">Zarejestruj</button>
@@ -82,11 +82,11 @@
                     </div>
                     <div>
                         <label>Hasło</label>
-                        <InputText @bind-Value="registerDriver.Password" InputType="password" />
+                        <InputText @bind-Value="registerDriver.Password" type="password" />
                     </div>
                     <div>
                         <label>Potwierdź hasło</label>
-                        <InputText @bind-Value="registerDriver.ConfirmPassword" InputType="password" />
+                        <InputText @bind-Value="registerDriver.ConfirmPassword" type="password" />
                     </div>
                 }
                 else if(driverRegistrationStep == 2)

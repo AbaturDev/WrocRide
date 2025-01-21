@@ -26,7 +26,7 @@ namespace WrocRide.Client.Services
         {
             await _addBearerTokenService.AddBearerToken(_httpClient);
 
-            //await _httpClient.PutAsync("api/me/deactivate-account");
+            await _httpClient.PutAsync("api/me/deactivate-account", null);
         }
 
         public async Task<UserDto> GetUser()
