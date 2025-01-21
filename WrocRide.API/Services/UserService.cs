@@ -42,6 +42,7 @@ namespace WrocRide.API.Services
                 Balance = user.Balance,
                 Role = user.Role.Name,
                 IsActive = user.IsActive,
+                Id = user.Id
             };
 
             return result;

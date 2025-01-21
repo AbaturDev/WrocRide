@@ -1,4 +1,6 @@
-﻿<div class="container">
+﻿<AddCreditsComponent ShowModal="@showModal" ShowModalChanged="HandleModalToggle" />
+
+<div class="container">
     <header class="d-flex justify-content-center justify-content-md-between py-3">
 
         <NavLink href="/" class="text-light text-decoration-none fs-4 fw-bold"> WrocRide </NavLink>
@@ -19,12 +21,31 @@
             </li>
         </ul>
 
-        <div class="text-end">
-            <NavLink href="/login" class="btn btn-primary">Zaloguj</NavLink>
+        <div class="dropdown">
+            <img src="images/avatar.png"
+                 class="rounded-circle img-fluid dropdown-toggle"
+                 id="userDropdown"
+                 style="width: 40px; height: 40px; cursor: pointer;"
+                 data-bs-toggle="dropdown"
+                 aria-expanded="false" />
+
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li><NavLink href="/me" class="dropdown-item">Profil</NavLink></li>
+                <li><a class="dropdown-item" @onclick="() => showModal = true">Dodaj środki</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><NavLink href="/login" class="dropdown-item">Wyloguj</NavLink></li>
+            </ul>
         </div>
+
+
     </header>
 </div>
 
 @code {
+    private bool showModal = false;
 
+    private void HandleModalToggle(bool show)
+    {
+        showModal = show;
+    }
 }
