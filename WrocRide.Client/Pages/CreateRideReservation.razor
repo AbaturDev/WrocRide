@@ -1,56 +1,57 @@
-﻿@page "/create-ride"
+﻿@page "/reservation"
 @inject IRideService RideService
 
 <h3 class="text-center" style="margin-top: 20px">Zamów swój przejazd</h3>
 
 <div class="d-flex justify-content-center" style="height: 100vh; margin-top: 20px">
     <div class="row rounded bg-light shadow p-4" style="width: 500px; height: 500px; overflow: hidden;">
-        <EditForm Model="createRide" OnValidSubmit="HandleRideCreate">
+        <EditForm Model="reservation" OnValidSubmit="HandleCreateReservation">
             <div class="card-body">
                 <div class="form-group">
                     <label>Miejsce odbioru</label>
-                    <InputText class="formm-control" @bind-Value="createRide.PickUpLocation" />
+                    <InputText class="form-control" @bind-Value="reservation.PickUpLocation" />
                 </div>
                 <div class="form-group">
                     <label>Cel podróży</label>
-                    <InputText class="formm-control" @bind-Value="createRide.Destination" />
+                    <InputText class="form-control" @bind-Value="reservation.Destination" />
+                </div>
+                <div class="form-group">
+                    <label>Godzina rezerwacji</label>
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value:format="dd/MM/yyyy hh:mm:ss" @bind-Value="@reservation.StartDate" />
                 </div>
                 <div class="form-group">
                     <label>Id kierowcy</label>
-                    <InputNumber class="formm-control" @bind-Value="createRide.DriverId" />
+                    <InputNumber class="form-control" @bind-Value="reservation.DriverId" />
                 </div>
             </div>
 
             <div class="text-center">
-                <button type="submit">Zamów</button>
+                <button type="submit">Zarezerwuj</button>
             </div>
         </EditForm>
 
         <div class="text-center" style="color:blue">
-            <a><NavLink href="/reservation">Chcesz zarezerwować przejazd? </NavLink></a>
+            <a><NavLink href="/create-ride">Chcesz zamówić bez rezerwacji?</NavLink></a>
         </div>
 
         @if (isSuccess)
         {
             <div class="alert alert-success text-center">
-                Przejazd został utworzony
+                Rezerwacja została utworzona
             </div>
         }
+
     </div>
 </div>
 
-
-
 @code {
-    CreateRideDto createRide = new();
-    bool isSuccess = false;
+    CreateRideReservationDto reservation = new();
+    private bool isSuccess = false;
 
-    private async Task HandleRideCreate()
+    private async Task HandleCreateReservation()
     {
-        await RideService.CreateRide(createRide);
+        await RideService.CreateRideReservation(reservation);
         isSuccess = true;
-
-        StateHasChanged();
 
         await Task.Delay(5000);
         isSuccess = false;

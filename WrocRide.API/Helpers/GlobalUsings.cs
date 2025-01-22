@@ -6,6 +6,7 @@ global using Microsoft.EntityFrameworkCore;
 global using WrocRide.API.Entities;
 global using WrocRide.API.Helpers;
 global using WrocRide.API.Middleware;
+global using WrocRide.Shared;
 global using WrocRide.Shared.DTOs.Car;
 global using WrocRide.Shared.DTOs.Account;
 global using WrocRide.Shared.DTOs.Document;
