@@ -5,11 +5,11 @@ namespace WrocRide.API.Controllers
     [ApiController]
     [Authorize(Roles = "Client, Driver")]
     [Authorize(Policy = "IsActivePolicy")]
-    public class ReportControler : ControllerBase
+    public class ReportController : ControllerBase
     {
         private readonly IReportService _reportService;
 
-        public ReportControler(IReportService reportService)
+        public ReportController(IReportService reportService)
         {
             _reportService = reportService;
         }

@@ -1,4 +1,4 @@
-﻿namespace WrocRide.API.Helpers
+﻿namespace WrocRide.Shared
 {
     public class PagedList<T>
     {

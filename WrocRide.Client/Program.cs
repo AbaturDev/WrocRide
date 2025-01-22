@@ -21,5 +21,6 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAddBearerTokenService, AddBearerTokenService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRideService, RideService>();
 
 await builder.Build().RunAsync();
