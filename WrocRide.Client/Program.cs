@@ -26,5 +26,8 @@ builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
+
+builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();

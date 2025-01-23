@@ -1,0 +1,46 @@
+﻿@inject IDriverService DriverService
+
+<BaseModal Title="Zaktualizuj cennik" IsVisible="ShowModal" IsVisibleChanged="ShowModalChanged">
+    <EditForm Model="updatePricing" OnValidSubmit="UpdatePricing">
+        <label>Nowa cena za km</label>
+        <InputNumber @bind-Value="updatePricing.Pricing" />
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Zaktualizuj</button>
+        </div>
+    </EditForm>
+
+    @if (isSuccess)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            Cennik został zaktualizowany
+        </div>
+    }
+</BaseModal>
+
+@code {
+    [Parameter] public bool ShowModal { get; set; }
+    [Parameter] public EventCallback<bool> ShowModalChanged { get; set; }
+
+    private UpdateDriverPricingDto updatePricing = new();
+    private bool isSuccess = false;
+
+    private async Task ToggleModal(bool show)
+    {
+        ShowModal = show;
+        await ShowModalChanged.InvokeAsync(show);
+
+        if (!show)
+        {
+            isSuccess = false;
+        }
+    }
+
+    private async Task UpdatePricing()
+    {
+        await DriverService.UpdatePricing(updatePricing);
+        isSuccess = true;
+
+        await Task.Delay(5000);
+        isSuccess = false;
+    }
+}

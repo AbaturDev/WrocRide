@@ -6,6 +6,7 @@ public interface IScheduleService
     Task DeleteSchedule(int id);
     Task<ScheduleDto> GetSchedule(int id);
     Task GenerateRidesFromSchedules();
+    Task<PagedList<ScheduleDto>> GetAll(ScheduleQuery query);
 }
 
 public class ScheduleService : IScheduleService
@@ -95,6 +96,45 @@ public class ScheduleService : IScheduleService
             DaysOfWeek = schedule.ScheduleDays.Select(s => s.DayOfWeek.Day).ToList()
         };
 
+        return result;
+    }
+
+    public async Task<PagedList<ScheduleDto>> GetAll(ScheduleQuery query)
+    {
+        var userId = _userContext.GetUserId;
+
+        var client = await _dbContext.Clients.FirstOrDefaultAsync(c => c.UserId == userId);
+        if(client == null)
+        {
+            throw new BadRequestException("User is not a client");
+        }
+
+        var baseQuery =  _dbContext.Schedules
+            .Include(s => s.ScheduleDays)
+            .ThenInclude(s => s.DayOfWeek)
+            .Where(s => s.ClientId == client.Id);
+
+        var itemsCount = await baseQuery.CountAsync();
+
+        var schedules = await baseQuery
+            .Select(s => new ScheduleDto()
+            {
+                Id = s.Id,
+                ClientId = s.ClientId,
+                PickUpLocation = s.PickUpLocation,
+                Destination = s.Destination,
+                Distance = s.Distance,
+                StartTime = s.StartTime,
+                CreatedAt = s.CreatedAt,
+                DaysOfWeek = s.ScheduleDays.Select(s => s.DayOfWeek.Day).ToList(),
+                BudgetPerRide = s.BudgetPerRide
+            })
+            .Skip(query.PageSize * (query.PageNumber - 1))
+            .Take(query.PageSize)
+            .ToListAsync();
+
+        var result = new PagedList<ScheduleDto>(schedules, query.PageSize, query.PageNumber, itemsCount);
+        
         return result;
     }
 

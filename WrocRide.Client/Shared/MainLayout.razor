@@ -5,7 +5,16 @@
 <div class="page d-flex flex-column min-vh-100">
 
     <div class="container-fluid" style="background-color: var(--color-purple)">
-        <TopNavBar />
+        <AuthorizeView>
+            <Authorized Context="authContext">
+                <AuthorizeView Roles="Client">
+                    <TopNavBar />
+                </AuthorizeView>
+                <AuthorizeView Roles="Driver">
+                    <DriverTopNavBar/>
+                </AuthorizeView>
+            </Authorized>
+        </AuthorizeView>
     </div>
 
     <div class="container-fluid flex-grow-1">

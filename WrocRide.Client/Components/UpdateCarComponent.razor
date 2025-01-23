@@ -1,0 +1,77 @@
+﻿@inject IUserService UserService
+@inject ICarService CarService
+@inject IDriverService DriverService
+
+<BaseModal Title="Aktualizuj informacje o samochodzie" IsVisible="IsUpdateModalVisible" IsVisibleChanged="IsUpdateModalVisibleChanged">
+    <EditForm Model="updateCar" OnValidSubmit="UpdateCar">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Dane pojazdu</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label>Numer rejstracyjny</label>
+                        <InputText class="form-control" @bind-Value="updateCar.LicensePlate" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Marka</label>
+                        <InputText class="form-control" @bind-Value="updateCar.Brand" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Model</label>
+                        <InputText class="form-control" @bind-Value="updateCar.Model" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Kolor</label>
+                        <InputText class="form-control" @bind-Value="updateCar.BodyColor" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Rok produkcji</label>
+                        <InputNumber class="form-control" @bind-Value="updateCar.YearProduced" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Aktualizuj</button>
+        </div>
+
+    </EditForm>
+    @if (isSuccess)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            Dane zostały zaktualizowane pomyślnie
+        </div>
+    }
+</BaseModal>
+
+@code {
+    [Parameter] public bool IsUpdateModalVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsUpdateModalVisibleChanged { get; set; }
+
+    private UpdateCarDto updateCar = new();
+    private bool isSuccess = false;
+
+    private async Task ToggleModal(bool show)
+    {
+        IsUpdateModalVisible = show;
+        await IsUpdateModalVisibleChanged.InvokeAsync(show);
+
+        if (!show)
+        {
+            isSuccess = false;
+        }
+    }
+
+    private async Task UpdateCar()
+    {
+
+        //await CarService.UpdateCar(updateCar);
+        isSuccess = true;
+
+        await Task.Delay(5000);
+        isSuccess = false;
+    }
+}
