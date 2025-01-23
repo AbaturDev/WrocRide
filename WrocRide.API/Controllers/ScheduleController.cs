@@ -36,4 +36,12 @@ public class ScheduleController : ControllerBase
         
         return Ok(schedule);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<PagedList<ScheduleDto>>> GetAll([FromQuery] ScheduleQuery query)
+    {
+        var schedules = await _scheduleService.GetAll(query);
+
+        return Ok(schedules);
+    }
 }

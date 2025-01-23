@@ -1,0 +1,55 @@
+﻿@inject IScheduleService ScheduleService
+@inject NavigationManager NavigationManager
+
+<BaseModal Title="Utwórz nowy harmonogram" IsVisible="ShowModal" IsVisibleChanged="ShowModalChanged">
+    <EditForm Model="schedule" OnValidSubmit="CreateSchedule">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Harmonogram</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label>Miejsce odbioru</label>
+                    <InputText class="form-control" @bind-Value="schedule.PickUpLocation" />
+                </div>
+                <div class="form-group mb-3">
+                    <label>Miejsce odbioru</label>
+                    <InputText class="form-control" @bind-Value="schedule.Destination" />
+                </div>
+                <div class="form-group mb-3">
+                    <label>Godzina rozpoczęcia</label>
+                </div>
+
+                <label>Dni tygodnia</label>
+
+                <div class="form-group mb-3">
+                    <label>Budżet na przejazd</label>
+                    <InputNumber class="form-control" @bind-Value="schedule.BudgetPerRide" />
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Stwórz</button>
+        </div>
+    </EditForm>
+</BaseModal>
+
+@code {
+    [Parameter] public bool ShowModal { get; set; }
+    [Parameter] public EventCallback<bool> ShowModalChanged { get; set; }
+
+    private CreateScheduleDto schedule = new();
+
+    private async Task ToggleModal(bool show)
+    {
+        ShowModal = show;
+        await ShowModalChanged.InvokeAsync(show);
+    }
+
+    private async Task CreateSchedule()
+    {
+        await ScheduleService.CreateSchedule(schedule);
+        NavigationManager.NavigateTo("/schedules", true);
+    }
+}

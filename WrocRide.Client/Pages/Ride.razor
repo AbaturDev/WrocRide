@@ -1,5 +1,6 @@
 ﻿@page "/ride/{id}"
 @inject IRideService RideService
+@attribute [Authorize]
 
 <div class="text-center" style="margin-top: 20px">
     <h3>Przejazd Id @Id</h3>

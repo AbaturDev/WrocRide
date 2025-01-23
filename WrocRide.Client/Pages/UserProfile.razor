@@ -1,5 +1,8 @@
 ﻿@page "/me"
 @inject IUserService UserService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
 
 <UpdateUserProfileComponent IsUpdateModalVisible="@showUpdateModal" IsUpdateModalVisibleChanged="HandleModalToggle"/>
 
@@ -43,5 +46,7 @@
     private async Task DeactivateAccount()
     {
         await UserService.DeactivateAccount();
+        await AuthenticationService.Logout();
+        NavigationManager.NavigateTo("/login");
     }
 }

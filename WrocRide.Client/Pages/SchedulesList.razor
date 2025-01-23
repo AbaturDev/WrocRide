@@ -1,0 +1,81 @@
+﻿@page "/schedules"
+@inject IScheduleService ScheduleService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<CreateScheduleComponent ShowModal="@showUpdateModal" ShowModalChanged="HandleModalToggle" />
+
+<button class="btn btn-primary" @onclick="() => showUpdateModal = true"> Edytuj </button>
+
+<h3 class="text-center" style="margin-top: 20px">Twoje harmonogramy</h3>
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Id</th>
+            <th>Client Id</th>
+            <th>Skąd</th>
+            <th>Do</th>
+            <th>Dystans (km)</th>
+            <th>Dni przejazdów</th>
+            <th>Godzina Rozpoczęcia</th>
+            <th>Budżet na przejazd</th>
+            <th>Utworzono</th>
+            <th>USUŃ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var schedule in schedules.Items)
+        {
+            <tr>
+                <td>@schedule.Id</td>
+                <td>@schedule.ClientId</td>
+                <td>@schedule.PickUpLocation</td>
+                <td>@schedule.Destination</td>
+                <td>@schedule.Distance</td>
+                <td>@schedule.DaysOfWeek.</td>
+                <td>@schedule.StartTime</td>
+                <td>@schedule.BudgetPerRide</td>
+                <td>@schedule.CreatedAt</td>
+                <td class="text-center">
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteSchedule(schedule.Id)">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="schedules" OnPageChange="LoadPage" />
+</div>
+
+
+@code {
+    private PagedList<ScheduleDto> schedules = new PagedList<ScheduleDto>(new List<ScheduleDto>(), 5, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private bool showUpdateModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await ScheduleService.GetAllSchedules(_pageSize, pageNumber);
+        schedules = response;
+    }
+
+    private void HandleModalToggle(bool show)
+    {
+        showUpdateModal = show;
+    }
+
+    private async Task DeleteSchedule(int id)
+    {
+        await ScheduleService.DeleteSchedule(id);
+        NavigationManager.NavigateTo("/schedules", true);
+    }
+}

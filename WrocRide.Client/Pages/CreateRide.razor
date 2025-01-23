@@ -1,45 +1,50 @@
 ﻿@page "/create-ride"
 @inject IRideService RideService
 
-<h3 class="text-center" style="margin-top: 20px">Zamów swój przejazd</h3>
+<AuthorizeView Roles="Client">
+    <Authorized Context="authContext">
+        <h3 class="text-center" style="margin-top: 20px">Zamów swój przejazd</h3>
 
-<div class="d-flex justify-content-center" style="height: 100vh; margin-top: 20px">
-    <div class="row rounded bg-light shadow p-4" style="width: 500px; height: 500px; overflow: hidden;">
-        <EditForm Model="createRide" OnValidSubmit="HandleRideCreate">
-            <div class="card-body">
-                <div class="form-group">
-                    <label>Miejsce odbioru</label>
-                    <InputText class="formm-control" @bind-Value="createRide.PickUpLocation" />
+        <div class="d-flex justify-content-center" style="height: 100vh; margin-top: 20px">
+            <div class="row rounded bg-light shadow p-4" style="width: 500px; height: 500px; overflow: hidden;">
+                <EditForm Model="createRide" OnValidSubmit="HandleRideCreate">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Miejsce odbioru</label>
+                            <InputText class="formm-control" @bind-Value="createRide.PickUpLocation" />
+                        </div>
+                        <div class="form-group">
+                            <label>Cel podróży</label>
+                            <InputText class="formm-control" @bind-Value="createRide.Destination" />
+                        </div>
+                        <div class="form-group">
+                            <label>Id kierowcy</label>
+                            <InputNumber class="formm-control" @bind-Value="createRide.DriverId" />
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit">Zamów</button>
+                    </div>
+                </EditForm>
+
+                <div class="text-center" style="color:blue">
+                    <a><NavLink href="/reservation">Chcesz zarezerwować przejazd? </NavLink></a>
                 </div>
-                <div class="form-group">
-                    <label>Cel podróży</label>
-                    <InputText class="formm-control" @bind-Value="createRide.Destination" />
-                </div>
-                <div class="form-group">
-                    <label>Id kierowcy</label>
-                    <InputNumber class="formm-control" @bind-Value="createRide.DriverId" />
-                </div>
+
+                @if (isSuccess)
+                {
+                    <div class="alert alert-success text-center">
+                        Przejazd został utworzony
+                    </div>
+                }
             </div>
-
-            <div class="text-center">
-                <button type="submit">Zamów</button>
-            </div>
-        </EditForm>
-
-        <div class="text-center" style="color:blue">
-            <a><NavLink href="/reservation">Chcesz zarezerwować przejazd? </NavLink></a>
         </div>
-
-        @if (isSuccess)
-        {
-            <div class="alert alert-success text-center">
-                Przejazd został utworzony
-            </div>
-        }
-    </div>
-</div>
-
-
+    </Authorized>
+    <NotAuthorized Context="notAuthContext">
+        <h2 class="text-center" style="margin-top: 20px">Tylko klienci mogą zamawiać przejazdy</h2>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     CreateRideDto createRide = new();

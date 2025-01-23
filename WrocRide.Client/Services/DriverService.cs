@@ -44,13 +44,13 @@ namespace WrocRide.Client.Services
         public async Task UpdatePricing(UpdateDriverPricingDto dto)
         {
             await _addBearerTokenService.AddBearerToken(_httpClient);
-            await _httpClient.PutAsJsonAsync("api/driver/status", dto);
+            await _httpClient.PutAsJsonAsync("api/driver/pricing", dto);
         }
 
         public async Task UpdateDriverStatus(UpdateDriverStatusDto dto)
         {
             await _addBearerTokenService.AddBearerToken(_httpClient);
-            await _httpClient.PutAsJsonAsync("api/driver/pricing", dto);
+            await _httpClient.PutAsJsonAsync("api/driver/status", dto);
         }
     }
 }

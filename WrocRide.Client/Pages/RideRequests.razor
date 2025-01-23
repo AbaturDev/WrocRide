@@ -1,0 +1,82 @@
+﻿@page "/ride-requests"
+@inject IRideService RideService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3 class="text-center" style="margin-top: 20px">Twoje zlecenia</h3>
+
+<div class="d-flex justify-content-center">
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() =>  OnChange(RideStatus.Pending)">Zlecenia</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(RideStatus.ReservationRequested)">Rezerwacje</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Klient</th>
+            <th>Skąd</th>
+            <th>Do</th>
+            <th>Dystans (km)</th>
+            <th>Status</th>
+            <th>Decyzja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ride in rides.Items)
+        {
+            <tr>
+                <td><a href="/ride/@ride.Id.ToString()">@ride.Id</a></td>
+                <td>@ride.ClientName @ride.ClientSurename</td>
+                <td>@ride.PickUpLocation</td>
+                <td>@ride.Destination</td>
+                <td>@ride.Distance</td>
+                <td>@ride.RideStatus</td>
+                <td>
+                    <button class="btn btn-success btn-sm" @onclick="() => DriverDecision(ride.Id, RideStatus.Accepted)">Akceptuj</button>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DriverDecision(ride.Id, RideStatus.Canceled)">Odrzuć</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="rides" OnPageChange="LoadPage" />
+</div>
+
+@code {
+    private PagedList<RideDto> rides = new PagedList<RideDto>(new List<RideDto>(), 10, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private RideStatus rideStaus = RideStatus.Pending;
+    UpdateRideStatusDto driverDecision = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await RideService.GetAll(_pageSize, pageNumber, rideStaus);
+        rides = response;
+    }
+
+    private async Task OnChange(RideStatus status)
+    {
+        rideStaus = status;
+        await LoadPage(_currentPage);
+    }
+
+    private async Task DriverDecision(int id, RideStatus status)
+    {
+        driverDecision.RideStatus = status;
+        await RideService.DriverDecision(id, driverDecision);
+        NavigationManager.NavigateTo("/ride-requests", true);
+    }
+}
