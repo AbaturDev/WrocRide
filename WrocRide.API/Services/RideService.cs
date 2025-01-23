@@ -179,6 +179,7 @@ namespace WrocRide.API.Services
             var rides = await baseQuery
                 .Select(r => new RideDto()
                 {
+                    Id = r.Id,
                     ClientName = r.Client.User.Name,
                     ClientSurename = r.Client.User.Surename,
                     DriverName = r.Driver.User.Name,
@@ -217,6 +218,7 @@ namespace WrocRide.API.Services
     
             var rideDeatails = new RideDeatailsDto()
             {
+                Id = ride.Id,
                 ClientName = ride.Client.User.Name,
                 ClientSurename = ride.Client.User.Surename,
                 DriverName = ride.Driver.User.Name,

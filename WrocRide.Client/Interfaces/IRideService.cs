@@ -1,4 +1,5 @@
-﻿using WrocRide.Shared.DTOs.Ride;
+﻿using WrocRide.Shared;
+using WrocRide.Shared.DTOs.Ride;
 
 namespace WrocRide.Client.Interfaces
 {
@@ -6,7 +7,8 @@ namespace WrocRide.Client.Interfaces
     {
         Task CreateRide(CreateRideDto dto);
         Task CreateRideReservation(CreateRideReservationDto dto);
-        //Task<RideDto> GetById(int id);
+        Task<PagedList<RideDto>> GetAll(int pageSize, int pageNumber);
+        Task<RideDeatailsDto> GetById(int id);
         Task UpdateRideStatus(int id, UpdateRideStatusDto dto);
         Task DriverDecision(int id, UpdateRideStatusDto dto);
         Task CancelRide(int id);

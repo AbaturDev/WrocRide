@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using WrocRide.Client.Interfaces;
+using WrocRide.Shared;
 using WrocRide.Shared.DTOs.Ride;
 
 namespace WrocRide.Client.Services
@@ -49,6 +50,22 @@ namespace WrocRide.Client.Services
         {
             await _addBearerTokenService.AddBearerToken(_httpClient);
             await _httpClient.PutAsJsonAsync($"api/ride/{id}/ride-status", dto);
+        }
+
+        public async Task<PagedList<RideDto>> GetAll(int pageSize, int pageNumber)
+        {
+            await _addBearerTokenService.AddBearerToken(_httpClient);
+            var response = await _httpClient.GetFromJsonAsync<PagedList<RideDto>>($"api/ride?pageSize={pageSize}&pageNumber={pageNumber}");
+
+            return response;
+        }
+
+        public async Task<RideDeatailsDto> GetById(int id)
+        {
+            await _addBearerTokenService.AddBearerToken(_httpClient);
+            var response = await _httpClient.GetFromJsonAsync<RideDeatailsDto>($"api/ride/{id}");
+
+            return response;
         }
     }
 }

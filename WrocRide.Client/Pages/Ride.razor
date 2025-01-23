@@ -1,0 +1,95 @@
+﻿@page "/ride/{id}"
+@inject IRideService RideService
+
+<div class="text-center" style="margin-top: 20px">
+    <h3>Przejazd Id @Id</h3>
+    <h5>Oto szczegóły przejazdu:</h5>
+</div>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Dane klienta:</strong> @ride.ClientName @ride.ClientSurename
+                </div>
+                <div class="col-md-6">
+                    <strong>Dane kierowcy:</strong> @ride.DriverName @ride.DriverSurename
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Skąd:</strong> @ride.PickUpLocation
+                </div>
+                <div class="col-md-6">
+                    <strong>Do:</strong> @ride.Destination
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Dystans:</strong> @ride.Distance km
+                </div>
+                <div class="col-md-6">
+                    <strong>Staus:</strong> @ride.RideStatus
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Marka samochodu:</strong> @ride.CarBrand
+                </div>
+                <div class="col-md-6">
+                    <strong>Model:</strong> @ride.CarModel
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Cena:</strong> @ride.Coast PLN
+                </div>
+                <div class="col-md-6">
+                    <strong>Grade:</strong> @ride.Grade
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Początek:</strong> @ride.StartDate.ToString("yyyy-MM-dd HH:mm")
+                </div>
+                <div class="col-md-6">
+                    <strong>Koniec:</strong> @ride.EndDate?.ToString("yyyy-MM-dd HH:mm")
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center justify-content-md-between py-3">
+        <button class="btn btn-danger" @onclick="Report">Zgłoś</button>
+        <button class="btn btn-primary" @onclick="Rate">Oceń</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] 
+    public string Id { get; set; }
+    private RideDeatailsDto ride = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var id = int.Parse(Id);
+
+        var response = await RideService.GetById(id);
+        ride = response;
+    }
+
+    private void Report()
+    {
+
+    }
+
+    private void Rate()
+    {
+        
+    }
+}

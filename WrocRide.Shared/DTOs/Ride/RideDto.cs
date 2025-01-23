@@ -4,6 +4,7 @@ namespace WrocRide.Shared.DTOs.Ride
 {
     public record RideDto
     {
+        public int Id { get; set; }
         public string ClientName { get; set; }
         public string ClientSurename { get; set; }
         public string DriverName { get; set; }
