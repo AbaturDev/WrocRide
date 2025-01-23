@@ -1,0 +1,51 @@
+﻿@page "/ride"
+@inject IRideService RideService
+
+<h3 class="text-center" style="margin-top: 20px">Twoja historia przejazdów</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Klient</th>
+            <th>Kierowca</th>
+            <th>Skąd</th>
+            <th>Do</th>
+            <th>Dystans (km)</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ride in rides.Items)
+        {
+            <tr>
+                <td><a href="/ride/@ride.Id.ToString()">@ride.Id</a></td>
+                <td>@ride.ClientName</td>
+                <td>@ride.DriverName</td>
+                <td>@ride.PickUpLocation</td>
+                <td>@ride.Destination</td>
+                <td>@ride.Distance</td>
+                <td>@ride.RideStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<PaginationComponent PagedData="rides" OnPageChange="LoadPage" />
+
+@code {
+    private PagedList<RideDto> rides = new PagedList<RideDto>(new List<RideDto>(), 10, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await RideService.GetAll(_pageSize, pageNumber);
+        rides = response;
+    }
+}

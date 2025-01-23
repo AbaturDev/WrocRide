@@ -1,0 +1,46 @@
+﻿@page "/drivers"
+
+<h3 class="text-center" style="margin-top: 20px">Lista kierowców</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Średnia ocena</th>
+            <th>Cena za km</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var driver in drivers.Items)
+        {
+            <tr>
+                <td><a href="/driver/@driver.Id.ToString()">@driver.Id</a></td>
+                <td>@driver.Name</td>
+                <td>@driver.Surename</td>
+                <td>@driver.Rating</td>
+                <td>@driver.Pricing</td>
+                <td>@driver.DriverStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<PaginationComponent PagedData="drivers" OnPageChange="LoadPage" />
+
+@code {
+    private PagedList<DriverDto> drivers = new PagedList<DriverDto>(new List<DriverDto>(), 5, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+    }
+}
