@@ -36,11 +36,13 @@ namespace WrocRide.API.Services
             var drivers = await baseQuery
                 .Select(d => new DriverDto()
                 {
+                    Id = d.Id,
                     Name = d.User.Name,
                     Surename = d.User.Surename,
                     Rating = d.Rating,
                     Pricing = d.Pricing,
-                    DriverStatus = d.DriverStatus
+                    DriverStatus = d.DriverStatus,
+                    CarId = d.CarId
                 })
                 .Skip(query.PageSize * (query.PageNumber - 1))
                 .Take(query.PageSize)
@@ -65,11 +67,13 @@ namespace WrocRide.API.Services
 
             var result = new DriverDto()
             {
+                Id = driver.Id,
                 Name = driver.User.Name,
                 Surename = driver.User.Surename,
                 Rating = driver.Rating,
                 Pricing = driver.Pricing,
-                DriverStatus = driver.DriverStatus
+                DriverStatus = driver.DriverStatus,
+                CarId = driver.CarId
             };
 
             return result;

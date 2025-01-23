@@ -31,7 +31,9 @@
     </tbody>
 </table>
 
-<PaginationComponent PagedData="rides" OnPageChange="LoadPage" />
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="rides" OnPageChange="LoadPage" />
+</div>
 
 @code {
     private PagedList<RideDto> rides = new PagedList<RideDto>(new List<RideDto>(), 10, 1, 0);

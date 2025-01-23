@@ -4,7 +4,7 @@ namespace WrocRide.Client.Interfaces
 {
     public interface ICarService
     {
-        Task<CarDto> GetCar(int id);
-        Task UpdateCar(int id, int carId, UpdateCarDto dto);
+        Task<CarDto> GetCar(int driverId, int id);
+        Task UpdateCar(int driverId, int id, UpdateCarDto dto);
     }
 }
