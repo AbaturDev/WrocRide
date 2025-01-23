@@ -1,0 +1,122 @@
+﻿@page "/ride/{Id}/report"
+@inject IReportService ReportService
+@inject NavigationManager NavigationManager
+
+<h3 class="text-center" style="margin-top: 20px">Zgłoszenie przejazdu: Id @Id</h3>
+
+@if (report != null)
+{
+    <UpdateReportComponent IsUpdateModalVisible="@showUpdateModal" IsUpdateModalVisibleChanged="HandleModalToggle" Id="@RideId()" />
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center">Zgłoszenie</h5>
+                <hr />
+                <div class="row">
+                    <div class="col-md-12">
+                        <strong>Powód:</strong> @report.Reason
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <strong>Utworzone:</strong> @report.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Status zgłoszenia:</strong> @report.ReportStatus
+                    </div>
+
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Zgłaszający:</strong> @report.ReporterUserId
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Zgłoszony:</strong> @report.ReportedUserId
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <strong>Przejazd:</strong> @report.RideId
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Administrator:</strong> @report.AdminId
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center justify-content-md-between py-3">
+            <button class="btn btn-danger" @onclick="DeleteReportAsync">Usuń zgłoszenie</button>
+            <button class="btn btn-primary" @onclick="() => showUpdateModal=true"> Edytuj zgłoszenie</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    <h4>Dodaj zgłoszenie</h4>
+                </div>
+                <EditForm Model="createReport" OnValidSubmit="CreateReport">
+                    <div class="form-group mt-3 ">
+                        <label>Treść zgłoszenia</label>
+                        <InputTextArea class="form-control" @bind-Value="createReport.Reason" style="height: 300px; width: 350px;" />
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Dodaj zgłoszenie</button>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private ReportDto? report;
+    private CreateReportDto createReport = new();
+    private bool showUpdateModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int rideId = RideId();
+
+        var response = await ReportService.GetReport(rideId);
+        report = response;
+    }
+
+    private void HandleModalToggle(bool show)
+    {
+        showUpdateModal = show;
+    }
+
+
+    private int RideId()
+    {
+        int id = int.Parse(Id);
+
+        return id;
+    }
+
+    private async Task DeleteReportAsync()
+    {
+        int id = RideId();
+        await ReportService.DeleteReport(id);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task CreateReport()
+    {
+        int id = RideId();
+        await ReportService.CreateReport(id, createReport);
+
+        NavigationManager.NavigateTo($"/ride/{Id}/report", true);
+    }
+}
