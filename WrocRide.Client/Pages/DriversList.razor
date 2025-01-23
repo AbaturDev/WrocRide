@@ -1,4 +1,5 @@
 ﻿@page "/drivers"
+@inject IDriverService DriverService
 
 <h3 class="text-center" style="margin-top: 20px">Lista kierowców</h3>
 
@@ -28,7 +29,9 @@
     </tbody>
 </table>
 
-<PaginationComponent PagedData="drivers" OnPageChange="LoadPage" />
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="drivers" OnPageChange="LoadPage" />
+</div>
 
 @code {
     private PagedList<DriverDto> drivers = new PagedList<DriverDto>(new List<DriverDto>(), 5, 1, 0);
@@ -42,5 +45,7 @@
 
     private async Task LoadPage(int pageNumber)
     {
+        var response = await DriverService.GetAll(_pageSize, pageNumber);
+        drivers = response;
     }
 }
