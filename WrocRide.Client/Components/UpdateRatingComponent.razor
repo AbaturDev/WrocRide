@@ -1,0 +1,42 @@
+﻿@inject IRatingService RatingService
+@inject NavigationManager NavigationManager
+
+<BaseModal Title="Zaktualizuj opinie" IsVisible="IsUpdateModalVisible" IsVisibleChanged="IsUpdateModalVisibleChanged">
+    <EditForm Model="rating" OnValidSubmit="UpdateRating">
+        <div class="form-group">
+            <label>Nowa ocena</label>
+            <InputNumber class="form-control" @bind-Value="rating.Grade" min="1" max="5" />
+        </div>
+
+        <div class="form-group mt-3 ">
+            <label>Nowy komentarz</label>
+            <InputTextArea class="form-control" @bind-Value="rating.Comment" style="height: 300px; width: 350px;" />
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Aktualizuj</button>
+        </div>
+    </EditForm>
+
+</BaseModal>
+
+@code {
+    [Parameter] public bool IsUpdateModalVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsUpdateModalVisibleChanged { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private CreateRatingDto rating = new();
+
+    private async Task ToggleModal(bool show)
+    {
+        IsUpdateModalVisible = show;
+        await IsUpdateModalVisibleChanged.InvokeAsync(show);
+    }
+
+    private async Task UpdateRating()
+    {
+        await RatingService.UpdateRating(Id, rating);
+
+        NavigationManager.NavigateTo($"/ride/{Id}/rating", true);
+    }
+}

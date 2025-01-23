@@ -65,8 +65,8 @@
         </div>
     </div>
     <div class="d-flex justify-content-center justify-content-md-between py-3">
-        <button class="btn btn-danger" @onclick="Report">Zgłoś</button>
-        <button class="btn btn-primary" @onclick="Rate">Oceń</button>
+        <NavLink class="btn btn-danger" href="@($"/ride/{Id}/report")">Zgłoś</NavLink>
+        <NavLink class="btn btn-primary" href="@($"/ride/{Id}/rating")">Oceń</NavLink>
     </div>
 </div>
 
@@ -81,15 +81,5 @@
 
         var response = await RideService.GetById(id);
         ride = response;
-    }
-
-    private void Report()
-    {
-
-    }
-
-    private void Rate()
-    {
-        
     }
 }

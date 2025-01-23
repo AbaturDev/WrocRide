@@ -24,5 +24,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRideService, RideService>();
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,37 @@
+﻿@inject IReportService ReportService
+@inject NavigationManager NavigationManager
+
+<BaseModal Title="Zaktualizuj zgłoszenie" IsVisible="IsUpdateModalVisible" IsVisibleChanged="IsUpdateModalVisibleChanged">
+    <EditForm Model="report" OnValidSubmit="UpdateReport">
+        <div class="form-group mt-3 ">
+            <label>Nowa treść zgłoszenia</label>
+            <InputTextArea class="form-control" @bind-Value="report.Reason" style="height: 300px; width: 350px;" />
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-primary">Aktualizuj</button>
+        </div>
+    </EditForm>
+
+</BaseModal>
+
+@code {
+    [Parameter] public bool IsUpdateModalVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsUpdateModalVisibleChanged { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private CreateReportDto report = new();
+
+    private async Task ToggleModal(bool show)
+    {
+        IsUpdateModalVisible = show;
+        await IsUpdateModalVisibleChanged.InvokeAsync(show);
+    }
+
+    private async Task UpdateReport()
+    {
+        await ReportService.UpdateReport(Id, report);
+
+        NavigationManager.NavigateTo($"/ride/{Id}/report", true);
+    }
+}

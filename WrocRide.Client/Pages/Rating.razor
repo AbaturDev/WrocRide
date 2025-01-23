@@ -1,0 +1,119 @@
+﻿@page "/ride/{Id}/rating"
+@inject IRatingService RatingService
+@inject NavigationManager NavigationManager
+
+<h3 class="text-center" style="margin-top: 20px">Ocena przejazdu: Id @Id</h3>
+
+@if (rating != null)
+{
+    <UpdateRatingComponent IsUpdateModalVisible="@showUpdateModal" IsUpdateModalVisibleChanged="HandleModalToggle" Id="@RideId()" />
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center">Opinia klienta</h5>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Ocena:</strong> @rating.Grade
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Data oceny:</strong> @rating.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <strong>Komentarz:</strong>
+                        <p>@rating.Comment</p>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Klient:</strong> @rating.ClientName @rating.ClientSurename
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Kierowca:</strong> @rating.DriverName @rating.DriverSurename
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center justify-content-md-between py-3">
+            <button class="btn btn-danger" @onclick="DeleteRatingAsync">Usuń opinie</button>
+            <button class="btn btn-primary" @onclick="() => showUpdateModal=true"> Edytuj opinie </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    <h4>Dodaj opinie</h4>
+                </div>
+                <EditForm Model="createRating" OnValidSubmit="CreateRating">
+                    <div class="form-group">
+                        <label>Ocena</label>
+                        <InputNumber class="form-control" @bind-Value="createRating.Grade" min="1" max="5" />
+                    </div>
+
+                    <div class="form-group mt-3 ">
+                        <label>Komentarz</label>
+                        <InputTextArea class="form-control" @bind-Value="createRating.Comment" style="height: 300px; width: 350px;" />
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-primary">Dodaj opinie</button>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private RatingDto? rating;
+    private CreateRatingDto createRating = new();
+    private bool showUpdateModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int rideId = RideId();
+
+        var response = await RatingService.GetRating(rideId);
+        rating = response;
+    }
+
+    private void HandleModalToggle(bool show)
+    {
+        showUpdateModal = show;
+    }
+
+
+    private int RideId()
+    {
+        int id = int.Parse(Id);
+
+        return id;
+    }
+
+    private async Task DeleteRatingAsync()
+    {
+        int id = RideId();
+        await RatingService.DeleteRating(id);
+
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task CreateRating()
+    {
+        int id = RideId();
+        await RatingService.CreateRating(id, createRating);
+
+        NavigationManager.NavigateTo($"/ride/{Id}/rating", true);
+    }
+}
