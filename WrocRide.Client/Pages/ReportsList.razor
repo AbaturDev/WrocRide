@@ -1,0 +1,97 @@
+﻿@page "/reports"
+@inject IAdminService AdminService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3 class="text-center" style="margin-top: 20px">Zgłoszenia</h3>
+
+<div class="d-flex justify-content-center">
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(null)">Wszystkie</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(ReportStatus.Pending)">Oczekujące</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(ReportStatus.Accepted)">Zaakceptowane</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(ReportStatus.Rejected)">Odrzucone</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Przejazd</th>
+            <th>Powód</th>
+            <th>Data złożenia</th>
+            <th>Zgłaszający</th>
+            <th>Zgłaszany</th>
+            <th>Status</th>
+            <th>Decyzja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var report in reports.Items)
+        {
+            <tr>
+                <td>@report.Id</td>
+                <td>@report.RideId</td>
+                <td>@report.Reason</td>
+                <td>@report.CreatedAt</td>
+                <td>@report.ReporterUserId</td>
+                <td>@report.ReportedUserId</td>
+                <td>@report.ReportStatus</td>
+                @if (report.ReportStatus == ReportStatus.Pending)
+                {
+                    <td>
+                        <button class="btn btn-success btn-sm" @onclick="() => AdminDecision(report.Id, ReportStatus.Accepted)">Akceptuj</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => AdminDecision(report.Id, ReportStatus.Rejected)">Odrzuć</button>
+                    </td>
+                }
+                else
+                {
+                    <td>Zweryfikowane</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="reports" OnPageChange="LoadPage" />
+</div>
+
+@code {
+    private PagedList<ReportDto> reports = new PagedList<ReportDto>(new List<ReportDto>(), 10, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private ReportStatus? reportStatus;
+    private UpdateReportDto updateReportDto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await AdminService.GetAllReports(_pageSize, pageNumber, reportStatus);
+        reports = response;
+    }
+
+    private async Task OnChange(ReportStatus? status)
+    {
+        reportStatus = status;
+        await LoadPage(_currentPage);
+    }
+
+    private async Task AdminDecision(int id, ReportStatus status)
+    {
+        updateReportDto.ReportStatus = status;
+        await AdminService.UpdateReport(id, updateReportDto);
+        NavigationManager.NavigateTo("/reports", true);
+    }
+}

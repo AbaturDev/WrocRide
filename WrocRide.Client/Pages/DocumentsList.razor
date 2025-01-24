@@ -1,0 +1,91 @@
+﻿@page "/documents"
+@inject IAdminService AdminService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3 class="text-center" style="margin-top: 20px">Dokumenty kierowców</h3>
+
+<div class="d-flex justify-content-center">
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(null)">Wszystkie</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() =>  OnChange(DocumentStatus.UnderVerification)">Oczekujące</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(DocumentStatus.Accepted)">Zaakceptowane</button>
+    </div>
+    <div class="form-check form-check-inline">
+        <button class="form-check-label" @onclick="() => OnChange(DocumentStatus.Rejected)">Odrzucone</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Data złożenia</th>
+            <th>Link do pliku</th>
+            <th>Status</th>
+            <th>Decyzja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var document in documents.Items)
+        {
+            <tr>
+                <td>@document.Id</td>
+                <td>@document.RequestDate</td>
+                <td>@document.FileLocation</td>
+                <td>@document.DocumentStatus</td>
+                @if(document.DocumentStatus == DocumentStatus.UnderVerification)
+                {
+                    <td>
+                        <button class="btn btn-success btn-sm" @onclick="() => AdminDecision(document.Id, DocumentStatus.Accepted)">Akceptuj</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => AdminDecision(document.Id, DocumentStatus.Rejected)">Odrzuć</button>
+                    </td>
+                }
+                else
+                {
+                    <td>Zweryfikowane</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="documents" OnPageChange="LoadPage" />
+</div>
+
+@code {
+    private PagedList<DocumentDto> documents = new PagedList<DocumentDto>(new List<DocumentDto>(), 10, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private DocumentStatus? documentStatus;
+    private UpdateDocumentDto updateDocumentDto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await AdminService.GetAllDocuments(_pageSize, pageNumber, documentStatus);
+        documents = response;
+    }
+
+    private async Task OnChange(DocumentStatus? status)
+    {
+        documentStatus = status;
+        await LoadPage(_currentPage);
+    }
+
+    private async Task AdminDecision(int id, DocumentStatus status)
+    {
+        updateDocumentDto.DocumentStatus = status;
+        await AdminService.UpdateDocument(id, updateDocumentDto);
+        NavigationManager.NavigateTo("/documents", true);
+    }
+}

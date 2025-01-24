@@ -30,7 +30,7 @@
         @foreach (var ride in rides.Items)
         {
             <tr>
-                <td><a href="/ride/@ride.Id.ToString()">@ride.Id</a></td>
+                <td>@ride.Id</td>
                 <td>@ride.ClientName @ride.ClientSurename</td>
                 <td>@ride.PickUpLocation</td>
                 <td>@ride.Destination</td>

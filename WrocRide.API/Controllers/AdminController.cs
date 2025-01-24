@@ -29,14 +29,6 @@
             return Ok();
         }
 
-        [HttpGet("document/{driverId}")]
-        public async Task<ActionResult<DocumentDto>> GetDocumentByDriverId([FromRoute] int driverId)
-        {
-            var result = await _adminService.GetDocumentByDriverId(driverId);
-
-            return Ok(result);
-        }
-
         [HttpGet("users")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers([FromQuery] UserQuery query)
         {
