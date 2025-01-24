@@ -27,6 +27,7 @@ builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddAuthorizationCore();
 

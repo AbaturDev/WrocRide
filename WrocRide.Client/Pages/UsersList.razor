@@ -1,0 +1,74 @@
+﻿@page "/users"
+@inject IAdminService AdminService
+@inject NavigationManager NavigationManager
+@attribute [Authorize]
+
+<h3 class="text-center" style="margin-top: 20px">Użytkownicy</h3>
+
+<UpdateUserProfileAdminExtensionComponent Id="selectedUserId" IsUpdateModalVisible="@showUpdateModal" IsUpdateModalVisibleChanged="HandleModalToggle" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Użytkownik</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Saldo</th>
+            <th>Rola</th>
+            <th>Aktywny</th>
+            <th>Edycja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in users.Items)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Name @user.Surename</td>
+                <td>@user.Email</td>
+                <td>@user.PhoneNumber</td>
+                <td>@user.Balance</td>
+                <td>@user.Role</td>
+                <td>@user.IsActive</td>
+                <button class="btn btn-success" @onclick="() => OpenUpdateModal(user.Id)">Edytuj</button>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center mt-4 pagination-component">
+    <PaginationComponent PagedData="users" OnPageChange="LoadPage" />
+</div>
+
+@code {
+    private PagedList<UserDto> users = new PagedList<UserDto>(new List<UserDto>(), 10, 1, 0);
+    private int _currentPage = 1;
+    private int _pageSize = 5;
+    private int? roleId;
+    private UpdateUserDto updateUser = new();
+    private bool showUpdateModal = false;
+    private int selectedUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage(_currentPage);
+    }
+
+    private async Task LoadPage(int pageNumber)
+    {
+        var response = await AdminService.GetAllUsers(_pageSize, pageNumber, roleId);
+        users = response;
+    }
+
+    private void HandleModalToggle(bool show)
+    {
+        showUpdateModal = show;
+    }
+
+    private void OpenUpdateModal(int id)
+    {
+        selectedUserId = id;
+        showUpdateModal = true;
+    }
+}

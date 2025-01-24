@@ -4,7 +4,6 @@
     {
         Task<PagedList<DocumentDto>> GetDocuments(DocumentQuery query);
         Task UpdateDocument(int id, UpdateDocumentDto dto);
-        Task<DocumentDto> GetDocumentByDriverId(int id);
         Task<PagedList<UserDto>> GetAll(UserQuery query);
         Task UpdateUser(int id, UpdateUserDto dto);
         Task<PagedList<ReportDto>> GetReports(ReportQuery query);
@@ -107,32 +106,6 @@
             }       
         }
 
-        public async Task<DocumentDto> GetDocumentByDriverId(int id)
-        {
-            var driver = await _dbContext.Drivers.FirstOrDefaultAsync(d => d.Id == id);
-
-            if (driver == null)
-            {
-                throw new NotFoundException("Driver not found");
-            }
-
-            var document = await _dbContext.Documents.FirstOrDefaultAsync(doc => doc.Id == driver.DocumentId);
-
-            if (document == null)
-            {
-                throw new NotFoundException("Document not found");
-            }
-
-            var result = new DocumentDto()
-            {
-                Id = document.Id,
-                DocumentStatus = document.DocumentStatus,
-                FileLocation = document.FileLocation,
-                RequestDate = document.RequestDate
-            };
-
-            return result;
-        }
         public async Task<PagedList<UserDto>> GetAll(UserQuery query)
         {
             IQueryable<User> baseQuery = _dbContext.Users;
@@ -216,11 +189,6 @@
             if (query.ReportStatus != null)
             {
                 baseQuery = baseQuery.Where(r => r.ReportStatus == query.ReportStatus);
-            }
-
-            if (query.ReportedId != null)
-            {
-                baseQuery = baseQuery.Where(r => r.ReportedUserId == query.ReportedId);
             }
 
             var totalItemsCount = await baseQuery.CountAsync();

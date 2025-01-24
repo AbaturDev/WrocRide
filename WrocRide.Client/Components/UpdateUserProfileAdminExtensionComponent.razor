@@ -1,0 +1,113 @@
+﻿@inject IAdminService AdminService
+@inject NavigationManager NavigationManager
+
+<BaseModal Title="Aktualizuj profil" IsVisible="IsUpdateModalVisible" IsVisibleChanged="IsUpdateModalVisibleChanged">
+    <EditForm Model="updateUser" OnValidSubmit="UpdateUserAsync">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Dane osobowe</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label>Imię</label>
+                            <InputText class="form-control" @bind-Value="updateUser.Name" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Nazwisko</label>
+                            <InputText class="form-control" @bind-Value="updateUser.Surename" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Email</label>
+                            <InputText class="form-control" @bind-Value="updateUser.Email" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Numer telefonu</label>
+                            <InputText class="form-control" @bind-Value="updateUser.PhoneNumber" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Zmiana hasła</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label>Hasło</label>
+                            <InputText class="form-control" @bind-Value="updateUser.Password" type="password" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Potwierdź hasło</label>
+                            <InputText class="form-control" @bind-Value="updateUser.ConfirmPassword" type="password" />
+                        </div>
+                    </div>
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Dostęp</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label class="form-label d-block">Czy zablokować?</label>
+                            <InputRadioGroup @bind-Value="updateUser.IsActive" class="d-flex">
+                                <div class="form-check me-3">
+                                    <InputRadio class="form-check-input" Value="false" />
+                                    <label class="form-check-label">Tak</label>
+                                </div>
+                                <div class="form-check">
+                                    <InputRadio class="form-check-input" Value="true" />
+                                    <label class="form-check-label">Nie</label>
+                                </div>
+                            </InputRadioGroup>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-primary">Aktualizuj</button>
+        </div>
+
+    </EditForm>
+    @if (isSuccess)
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            Dane zostały zaktualizowane pomyślnie
+        </div>
+    }
+</BaseModal>
+
+@code {
+    [Parameter] public bool IsUpdateModalVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsUpdateModalVisibleChanged { get; set; }
+    [Parameter] public int Id { get; set; }
+
+    private UpdateUserDto updateUser = new();
+    private bool isSuccess = false;
+
+    private async Task ToggleModal(bool show)
+    {
+        IsUpdateModalVisible = show;
+        await IsUpdateModalVisibleChanged.InvokeAsync(show);
+
+        if (!show)
+        {
+            isSuccess = false;
+        }
+    }
+
+    private async Task UpdateUserAsync()
+    {
+        await AdminService.UpdateUser(Id, updateUser);
+        isSuccess = true;
+
+        await Task.Delay(2500);
+        isSuccess = false;
+
+        NavigationManager.NavigateTo("/users", true);
+    }
+
+}
