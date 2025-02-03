@@ -1,7 +1,9 @@
 # WrocRide
 WrocRide is a ride-handling web application designed to facilitate communication in Wrocław. The project was made for database course on University.
 
-![Alt text](Logo.png)
+<p align="center">
+  <img src="Logo.png" alt="WrocRide Logo">
+</p>
 
 ## Features
 ### For everyone
@@ -49,26 +51,26 @@ WrocRide is a ride-handling web application designed to facilitate communication
 - JwtBearer
 
 ## Installation & Setup
-1. .NET SDK
+1. **.NET SDK**
 * Download and install .NET 8 SDK  from [https://dotnet.microsoft.com/en-us/download/dotnet/8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) 
 * Ensure you installed it by typing `dotnet` in terminal
-2. Clone the repository
+2. **Clone the repository**
 ```
 git clone https://github.com/AbaturDev/WrocRide.git
 ```
-3. Configure the database
+3. **Configure the database**
 * Ensure the MS SQL Server is installed and running
 * Modify the connection string in `appsettings.json` if necessary.
-4. Apply migrations
+4. **Apply migrations**
 ```
 dotnet ef database update
 ```
-5. Run backend
+5. **Run backend**
 ```
 cd WrocRide.API
 dotnet run
 ```
-6. Run frontend
+6. **Run frontend**
 ```
 cd --
 cd WrocRide.Client
@@ -83,5 +85,5 @@ http://localhost:5000/swagger
 ```
 
 ## Authors
-* AbaturDev - Project Manager, Backend developer, Frontend developer
-* Havkarr - Backend developer
+* **AbaturDev** - Project Manager, Backend developer, Frontend developer
+* **Havkarr** - Backend developer
