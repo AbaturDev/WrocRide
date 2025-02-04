@@ -22,6 +22,8 @@
 
         public static IServiceCollection AddValidators(this IServiceCollection services)
         {
+            services.AddFluentValidationAutoValidation();
+
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddScoped<IValidator<RegisterDriverDto>, RegisterDriverDtoValidator>();
             services.AddScoped<IValidator<UpdateCarDto>, UpdateCarDtoValidator>();
@@ -50,10 +52,45 @@
             return services;
         }
 
+        public static IServiceCollection AddAuthorizationHandlers(this IServiceCollection services)
+        {
+            services.AddScoped<IAuthorizationHandler, ActiveUserRequirementHandler>();
+
+            return services;
+        }
+
         public static IServiceCollection AddMiddlewares(this IServiceCollection services)
         {
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<RequestLoggingMiddleware>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddCorsPolicies(this IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendClient", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddCustomAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsActivePolicy", policy =>
+                {
+                    policy.Requirements.Add(new ActiveUserRequirement());
+                });
+            });
 
             return services;
         }
