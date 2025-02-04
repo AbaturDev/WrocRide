@@ -1,6 +1,6 @@
-﻿namespace WrocRide.API.Helpers
+﻿namespace WrocRide.API.Extensions
 {
-    public static class Seeder
+    public static class SeedingExtensions
     {
         private const int clientCount = 75;
         private const int adminCount = 5;
@@ -10,7 +10,7 @@
 
         public static WebApplication Seed(this WebApplication app)
         {
-            using(var scope = app.Services.CreateScope())
+            using (var scope = app.Services.CreateScope())
             {
                 using var context = scope.ServiceProvider.GetRequiredService<WrocRideDbContext>();
 
@@ -35,7 +35,7 @@
                     SchedulesSeeder.Seed(context, schedulesCount);
                     ScheduleDaySeeder.Seed(context);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     throw;
                 }

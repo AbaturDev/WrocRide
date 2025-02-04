@@ -30,4 +30,5 @@ global using WrocRide.API.Exceptions;
 global using WrocRide.Shared.Enums;
 global using Microsoft.AspNetCore.Mvc;
 global using Bogus;
+global using WrocRide.API.Extensions;
 
