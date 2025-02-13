@@ -15,7 +15,7 @@ namespace WrocRide.Shared.DTOs.Ride
         public RideStatus RideStatus { get; set; }
     }
 
-    public record RideDeatailsDto : RideDto
+    public sealed record RideDeatailsDto : RideDto
     {
         public decimal? Coast { get; set; }
         public DateTime StartDate { get; set; }

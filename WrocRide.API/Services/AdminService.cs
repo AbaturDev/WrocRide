@@ -1,4 +1,6 @@
-﻿namespace WrocRide.API.Services
+﻿using WrocRide.Shared.PaginationHelpers;
+
+namespace WrocRide.API.Services
 {
     public interface IAdminService
     {
@@ -42,8 +44,7 @@
                     FileLocation = d.FileLocation,
                     RequestDate = d.RequestDate
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<DocumentDto>(documents, query.PageSize, query.PageNumber, totalItemsCount);
@@ -130,8 +131,7 @@
                     IsActive = u.IsActive,
                     Balance = u.Balance
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<UserDto>(users, query.PageSize, query.PageNumber, totalItemsCount);
@@ -205,8 +205,7 @@
                     RideId = r.RideId,
                     AdminId = r.AdminId
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<ReportDto>(reports, query.PageSize, query.PageNumber, totalItemsCount);

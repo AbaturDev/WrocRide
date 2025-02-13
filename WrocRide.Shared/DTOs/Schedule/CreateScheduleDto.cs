@@ -1,6 +1,6 @@
 namespace WrocRide.Shared.DTOs.Schedule;
 
-public class CreateScheduleDto
+public sealed record CreateScheduleDto
 {
     public string PickUpLocation { get; set; }
     public string Destination { get; set; }

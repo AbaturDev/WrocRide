@@ -2,7 +2,7 @@
 
 namespace WrocRide.Shared.DTOs.Car
 {
-    public class UpdateCarDto
+    public sealed record UpdateCarDto
     {
         public string? LicensePlate { get; set; }
         public string? Brand { get; set; }

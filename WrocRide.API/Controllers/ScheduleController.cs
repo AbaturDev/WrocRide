@@ -1,3 +1,5 @@
+using WrocRide.Shared.PaginationHelpers;
+
 namespace WrocRide.API.Controllers;
 
 [Authorize(Roles = "Client")]
@@ -38,7 +40,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<ScheduleDto>>> GetAll([FromQuery] ScheduleQuery query)
+    public async Task<ActionResult<PagedList<ScheduleDto>>> GetAll([FromQuery] PageQuery query)
     {
         var schedules = await _scheduleService.GetAll(query);
 

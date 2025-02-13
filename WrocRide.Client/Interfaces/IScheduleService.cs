@@ -1,5 +1,5 @@
-﻿using WrocRide.Shared;
-using WrocRide.Shared.DTOs.Schedule;
+﻿using WrocRide.Shared.DTOs.Schedule;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.Client.Interfaces
 {

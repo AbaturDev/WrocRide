@@ -1,6 +1,6 @@
-﻿using WrocRide.Shared;
-using WrocRide.Shared.DTOs.Ride;
+﻿using WrocRide.Shared.DTOs.Ride;
 using WrocRide.Shared.Enums;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.Client.Interfaces
 {

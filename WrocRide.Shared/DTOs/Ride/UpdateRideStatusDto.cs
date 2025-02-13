@@ -1,9 +1,4 @@
 ﻿using WrocRide.Shared.Enums;
 
-namespace WrocRide.Shared.DTOs.Ride
-{
-    public class UpdateRideStatusDto
-    {
-        public RideStatus RideStatus { get; set; }
-    }
-}
+namespace WrocRide.Shared.DTOs.Ride;
+public sealed record UpdateRideStatusDto(RideStatus RideStatus);

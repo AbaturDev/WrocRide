@@ -1,10 +1,11 @@
-﻿namespace WrocRide.API.Validators
+﻿using WrocRide.Shared.PaginationHelpers;
+
+namespace WrocRide.API.Validators
 {
-    public class ScheduleQueryValidator : AbstractValidator<ScheduleQuery>
+    public class PageQueryValidator : AbstractValidator<PageQuery>
     {
         private readonly int[] allowedPageSizes = new int[] { 5, 10, 15, 20 };
-
-        public ScheduleQueryValidator()
+        public PageQueryValidator()
         {
             RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
 

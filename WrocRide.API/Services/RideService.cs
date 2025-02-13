@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.API.Services
 {
@@ -189,8 +190,7 @@ namespace WrocRide.API.Services
                     PickUpLocation = r.PickUpLocation,
                     RideStatus = r.RideStatus
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<RideDto>(rides, query.PageSize, query.PageNumber, totalItemsCount);

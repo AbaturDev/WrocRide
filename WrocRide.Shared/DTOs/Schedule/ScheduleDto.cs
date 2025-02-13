@@ -1,6 +1,6 @@
 namespace WrocRide.Shared.DTOs.Schedule;
 
-public record ScheduleDto
+public sealed record ScheduleDto
 {
     public required int Id { get; set; }
     public required int ClientId { get; set; }

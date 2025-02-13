@@ -1,6 +1,6 @@
 ﻿namespace WrocRide.Shared.DTOs.Account
 {
-    public class RegisterUserDto
+    public record RegisterUserDto
     {
         public string Name { get; set; }
         public string Surename { get; set; }

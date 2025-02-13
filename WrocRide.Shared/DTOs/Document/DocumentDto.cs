@@ -2,7 +2,7 @@
 
 namespace WrocRide.Shared.DTOs.Document
 {
-    public class DocumentDto
+    public sealed record DocumentDto
     {
         public int Id { get; set; }
         public DocumentStatus DocumentStatus { get; set; }

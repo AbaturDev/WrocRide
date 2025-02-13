@@ -1,9 +1,7 @@
-﻿namespace WrocRide.Shared.DTOs.Ride
+﻿namespace WrocRide.Shared.DTOs.Ride;
+public record CreateRideDto
 {
-    public class CreateRideDto
-    {
-        public string PickUpLocation { get; set; }
-        public string Destination { get; set; }
-        public int DriverId { get; set; }
-    }
+    public string PickUpLocation { get; set; }
+    public string Destination { get; set; }
+    public int DriverId { get; set; }
 }

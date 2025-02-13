@@ -1,4 +1,6 @@
-﻿namespace WrocRide.API.Controllers
+﻿using WrocRide.Shared.PaginationHelpers;
+
+namespace WrocRide.API.Controllers
 {
     [Authorize(Policy = "IsActivePolicy")]
     [Route("api/driver")]
@@ -45,7 +47,7 @@
         }
 
         [HttpGet("{id}/ratings")]
-        public async Task<ActionResult<IEnumerable<RatingDto>>> GetRatings([FromRoute] int id, [FromQuery] DriverRatingsQuery query)
+        public async Task<ActionResult<IEnumerable<RatingDto>>> GetRatings([FromRoute] int id, [FromQuery] PageQuery query)
         {
             var result = await _driverService.GetRatings(id, query);
 

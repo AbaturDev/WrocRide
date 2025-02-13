@@ -1,6 +1,6 @@
 ﻿namespace WrocRide.Shared.DTOs.Account
 {
-    public class RegisterDriverDto : RegisterUserDto
+    public record RegisterDriverDto : RegisterUserDto
     {
         public decimal Pricing { get; set; }
         public string FileLocation { get; set; }

@@ -1,6 +1,6 @@
 namespace WrocRide.Shared.DTOs.Ride;
 
-public class CreateRideReservationDto : CreateRideDto
+public sealed record CreateRideReservationDto : CreateRideDto
 {
     public DateTime StartDate { get; set; }
 }
