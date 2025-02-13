@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using WrocRide.Client.Interfaces;
-using WrocRide.Shared;
 using WrocRide.Shared.DTOs.Schedule;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.Client.Services
 {

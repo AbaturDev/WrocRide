@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Json;
 using WrocRide.Client.Interfaces;
-using WrocRide.Shared;
 using WrocRide.Shared.DTOs.Driver;
 using WrocRide.Shared.DTOs.Rating;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.Client.Services
 {

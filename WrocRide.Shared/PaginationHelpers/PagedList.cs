@@ -1,4 +1,4 @@
-﻿namespace WrocRide.Shared
+﻿namespace WrocRide.Shared.PaginationHelpers
 {
     public class PagedList<T>
     {
@@ -13,7 +13,7 @@
             Items = items;
             PageSize = pageSize;
             PageNumber = pageNumber;
-            TotalPages = (int)Math.Ceiling(totalItemsCount /(double) pageSize);
+            TotalPages = (int)Math.Ceiling(totalItemsCount / (double)pageSize);
             TotalItemsCount = totalItemsCount;
         }
     }

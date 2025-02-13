@@ -1,4 +1,6 @@
-﻿namespace WrocRide.API.Extensions
+﻿using WrocRide.Shared.PaginationHelpers;
+
+namespace WrocRide.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -24,6 +26,7 @@
         {
             services.AddFluentValidationAutoValidation();
 
+            services.AddScoped<IValidator<PageQuery>, PageQueryValidator>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
             services.AddScoped<IValidator<RegisterDriverDto>, RegisterDriverDtoValidator>();
             services.AddScoped<IValidator<UpdateCarDto>, UpdateCarDtoValidator>();
@@ -34,7 +37,6 @@
             services.AddScoped<IValidator<RideQuery>, RideQueryValidator>();
             services.AddScoped<IValidator<UpdateUserDto>, UpdateUserDtoValidator>();
             services.AddScoped<IValidator<CreateRatingDto>, CreateRatingDtoValidator>();
-            services.AddScoped<IValidator<DriverRatingsQuery>, DriverRatingsQueryValidator>();
             services.AddScoped<IValidator<AddCreditsDto>, AddCreditsDtoValidator>();
             services.AddScoped<IValidator<DocumentQuery>, DocumentQueryValidator>();
             services.AddScoped<IValidator<UserQuery>, UserQueryValidator>();
@@ -45,7 +47,6 @@
             services.AddScoped<IValidator<UpdateReportDto>, UpdateReportDtoValidator>();
             services.AddScoped<IValidator<UpdateDocumentDto>, UpdateDocumentDtoValidator>();
             services.AddScoped<IValidator<CreateRideDto>, CreateRideDtoValidator>();
-            services.AddScoped<IValidator<ScheduleQuery>, ScheduleQueryValidator>();
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

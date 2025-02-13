@@ -1,4 +1,6 @@
 ﻿
+using WrocRide.Shared.PaginationHelpers;
+
 namespace WrocRide.API.Services
 {
     public interface IDriverService
@@ -7,7 +9,7 @@ namespace WrocRide.API.Services
         Task<DriverDto> GetById(int id);
         Task UpdatePricing(UpdateDriverPricingDto dto);
         Task UpdateStatus(UpdateDriverStatusDto dto);
-        Task<PagedList<RatingDto>> GetRatings(int id, DriverRatingsQuery query);
+        Task<PagedList<RatingDto>> GetRatings(int id, PageQuery query);
     }
 
     public class DriverService : IDriverService
@@ -44,8 +46,7 @@ namespace WrocRide.API.Services
                     DriverStatus = d.DriverStatus,
                     CarId = d.CarId
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<DriverDto>(drivers, query.PageSize, query.PageNumber, totalItemsCount);
@@ -109,7 +110,7 @@ namespace WrocRide.API.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<PagedList<RatingDto>> GetRatings(int id, DriverRatingsQuery query)
+        public async Task<PagedList<RatingDto>> GetRatings(int id, PageQuery query)
         {
             var driver = await _dbContext.Drivers
                 .Include(d => d.Rides)
@@ -142,8 +143,7 @@ namespace WrocRide.API.Services
                     DriverName = r.Driver.User.Name,
                     DriverSurename = r.Driver.User.Surename
                 })
-                .Skip(query.PageSize * (query.PageNumber - 1))
-                .Take(query.PageSize)
+                .Paginate(query.PageSize, query.PageNumber)
                 .ToListAsync();
 
             var result = new PagedList<RatingDto>(ratings, query.PageSize, query.PageNumber, totalItemsCount);

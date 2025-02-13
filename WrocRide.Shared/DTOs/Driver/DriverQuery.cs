@@ -1,11 +1,6 @@
 ﻿using WrocRide.Shared.Enums;
+using WrocRide.Shared.PaginationHelpers;
 
-namespace WrocRide.Shared.DTOs.Driver
-{
-    public class DriverQuery
-    {
-        public DriverStatus? DriverStatus { get; set; }
-        public int PageSize { get; set; } = 5;
-        public int PageNumber { get; set; } = 1;
-    }
-}
+namespace WrocRide.Shared.DTOs.Driver;
+
+public sealed record DriverQuery(DriverStatus? DriverStatus) : PageQuery;

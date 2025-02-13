@@ -1,7 +1,3 @@
-﻿namespace WrocRide.Shared.DTOs.Report
-{
-    public class CreateReportDto
-    {
-        public string Reason { get; set; }
-    }
-}
+﻿namespace WrocRide.Shared.DTOs.Report;
+
+public sealed record CreateReportDto(string Reason);

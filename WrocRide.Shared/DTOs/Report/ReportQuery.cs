@@ -1,11 +1,5 @@
 ﻿using WrocRide.Shared.Enums;
+using WrocRide.Shared.PaginationHelpers;
 
-namespace WrocRide.Shared.DTOs.Report
-{
-    public class ReportQuery
-    {
-        public int PageSize { get; set; } = 5;
-        public int PageNumber { get; set; } = 1;
-        public ReportStatus? ReportStatus { get; set; }
-    }
-}
+namespace WrocRide.Shared.DTOs.Report;
+public sealed record ReportQuery(ReportStatus? ReportStatus) : PageQuery;

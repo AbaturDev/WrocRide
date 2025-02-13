@@ -1,13 +1,11 @@
-﻿namespace WrocRide.Shared.DTOs.Rating
+﻿namespace WrocRide.Shared.DTOs.Rating;
+public sealed record RatingDto
 {
-    public record RatingDto
-    {
-        public int Grade { get; set; }
-        public string? Comment { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string ClientName { get; set; }
-        public string ClientSurename { get; set; }
-        public string DriverName { get; set; }
-        public string DriverSurename { get; set; }
-    }
+    public int Grade { get; set; }
+    public string? Comment { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public string ClientName { get; set; }
+    public string ClientSurename { get; set; }
+    public string DriverName { get; set; }
+    public string DriverSurename { get; set; }
 }

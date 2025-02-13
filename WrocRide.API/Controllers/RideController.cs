@@ -1,4 +1,6 @@
 ﻿
+using WrocRide.Shared.PaginationHelpers;
+
 namespace WrocRide.API.Controllers
 {
     [Authorize(Policy = "IsActivePolicy")]

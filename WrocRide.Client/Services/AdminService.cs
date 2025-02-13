@@ -1,10 +1,10 @@
 ﻿using System.Net.Http.Json;
 using WrocRide.Client.Interfaces;
-using WrocRide.Shared;
 using WrocRide.Shared.DTOs.Document;
 using WrocRide.Shared.DTOs.Report;
 using WrocRide.Shared.DTOs.User;
 using WrocRide.Shared.Enums;
+using WrocRide.Shared.PaginationHelpers;
 
 namespace WrocRide.Client.Services
 {

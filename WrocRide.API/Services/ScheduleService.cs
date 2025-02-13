@@ -1,3 +1,5 @@
+using WrocRide.Shared.PaginationHelpers;
+
 namespace WrocRide.API.Services;
 
 public interface IScheduleService
@@ -6,7 +8,7 @@ public interface IScheduleService
     Task DeleteSchedule(int id);
     Task<ScheduleDto> GetSchedule(int id);
     Task GenerateRidesFromSchedules();
-    Task<PagedList<ScheduleDto>> GetAll(ScheduleQuery query);
+    Task<PagedList<ScheduleDto>> GetAll(PageQuery query);
 }
 
 public class ScheduleService : IScheduleService
@@ -99,7 +101,7 @@ public class ScheduleService : IScheduleService
         return result;
     }
 
-    public async Task<PagedList<ScheduleDto>> GetAll(ScheduleQuery query)
+    public async Task<PagedList<ScheduleDto>> GetAll(PageQuery query)
     {
         var userId = _userContext.GetUserId;
 
@@ -129,8 +131,7 @@ public class ScheduleService : IScheduleService
                 DaysOfWeek = s.ScheduleDays.Select(s => s.DayOfWeek.Day).ToList(),
                 BudgetPerRide = s.BudgetPerRide
             })
-            .Skip(query.PageSize * (query.PageNumber - 1))
-            .Take(query.PageSize)
+            .Paginate(query.PageSize, query.PageNumber)
             .ToListAsync();
 
         var result = new PagedList<ScheduleDto>(schedules, query.PageSize, query.PageNumber, itemsCount);
