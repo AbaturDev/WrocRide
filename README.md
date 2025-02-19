@@ -1,5 +1,7 @@
 # WrocRide
-WrocRide is a ride-handling web application designed to facilitate communication in Wrocław. The project was made for database course on University.
+WrocRide is a ride-handling web application designed to facilitate communication in Wrocław. The project was made for database course on University. It is currently in the development phase and requires several adjustments, especially on the frontend. In the future there is a plan to add some extra features, including:
+- Integration with Google API to calculate ride prices more accurately.
+- Implementation of SignalR for a more dynamic and responsive user experience
 
 <p align="center">
   <img src="Logo.png" alt="WrocRide Logo">
